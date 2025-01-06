@@ -33,8 +33,8 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Build and install Livox-SDK2
-WORKDIR /home/rtarun1/wheelchair2
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+WORKDIR /home/wheelchair2/wheelchair2
+RUN git clone https://github.com/wheelchair2/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
@@ -42,9 +42,9 @@ RUN cd Livox-SDK2 \
     && sudo make install
 
 # Build and install Realsense-SDK
-WORKDIR /home/rtarun1
+WORKDIR /home/wheelchair2
 RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
-WORKDIR /home/rtarun1/librealsense
+WORKDIR /home/wheelchair2/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
