@@ -1,6 +1,7 @@
 # DockerForROS2Development
-Docker images for Easy ROS2 development with the wheelchair 
-
+Docker images for Easy ROS2 development with the wheelchair.
+- The humble image contains the base ROS2 humble build with basic dependencies.  
+- The wheelchair base image takes in humble image and adds Livox and Realsense SDK's and few other basic ROS2 packages.  
 ## Humble Image
 ```bash
 # Pull
