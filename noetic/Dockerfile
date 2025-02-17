@@ -1,5 +1,20 @@
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 
+# basic args
+ENV ROS_DISTRO=noetic
+ARG USERNAME=wheelchair1
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+# Add the following labels
+LABEL org.opencontainers.image.description="Docker Development Container"
+LABEL org.opencontainers.image.title="ROS1Dev"
+LABEL org.opencontainers.image.vendor="Tarun R"
+LABEL org.opencontainers.image.source="https://github.com/Smart-Wheelchair-RRC/DockerForDevelopment"
+LABEL maintainer="tarun.ramak@gmail.com"
+LABEL org.opencontainers.image.licenses="MIT"
+
+
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     dirmngr \
     gnupg2 \
@@ -30,15 +45,23 @@ RUN echo "deb [ signed-by=/usr/share/keyrings/ros1-latest-archive-keyring.gpg ] 
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
-ENV ROSDISTRO_PKGS_SYNC_DATE=2024-11-15
-ENV ROS_DISTRO=noetic
+# Create non root user with sudo privilege
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+USER $USERNAME
+
+ENV ROS_DISTRO $ROS_DISTRO
 
 RUN sudo rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-desktop-full=1.5.0-1* \
+    ros-$ROS_DISTRO-desktop-full=1.5.0-1* \
     && rm -rf /var/lib/apt/lists/*
 
 # setup entrypoint
