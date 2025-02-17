@@ -36,8 +36,12 @@ RUN sudo apt-get update \
     && sudo apt-get clean -y \
     && sudo rm -rf /var/lib/apt/lists/*
 
-#python deps
+# Python deps
+ARG JAX_CUDA_CUDNN="cuda"
 
+WORKDIR /home/wheelchair1/
 RUN sudo apt-get update \
-    && python3 -m pip install --no-cache-dir --upgrade pip \
-    && python3 -m pip install --no-cache-dir open3d
+    && python3 -m pip install --upgrade pip \
+    && python3 -m pip install open3d \
+    && python3 -m pip install "jax[$JAX_CUDA_CUDNN]" \
+    -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
