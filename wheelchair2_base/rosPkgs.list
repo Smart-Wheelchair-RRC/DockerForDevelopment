@@ -8,3 +8,4 @@ ros-humble-spatio-temporal-voxel-layer
 ros-humble-hardware-interface
 ros-humble-gazebo-dev
 ros-humble-gazebo-ros
+ros-humble-pcl-ros

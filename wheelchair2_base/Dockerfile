@@ -11,9 +11,8 @@ LABEL org.opencontainers.image.licenses="MIT"
 SHELL ["/bin/bash", "-c"]
 
 # Install Basic deps
-COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \
-    && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
+    && sudo apt-get -y install --no-install-recommends\
     libssl-dev \
     libusb-1.0-0-dev \
     libudev-dev \
@@ -51,3 +50,8 @@ RUN sudo mkdir -p /etc/udev/rules.d && \
 RUN mkdir build && cd build \
     && cmake ../ \
     && sudo make uninstall && make clean && make && sudo make install 
+
+COPY rosPkgs.list /tmp/rosPkgs.list
+RUN sudo apt-get update \
+    && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
+    && sudo rm -rf /var/lib/apt/lists/*
