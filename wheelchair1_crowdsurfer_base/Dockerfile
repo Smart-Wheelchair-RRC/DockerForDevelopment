@@ -27,7 +27,6 @@ RUN sudo apt-get update \
     at \
     v4l-utils \
     xterm \
-    git \
     vim \
     htop \
     python3 \
@@ -37,11 +36,9 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Python deps
-ARG JAX_CUDA_CUDNN="cuda"
-
 WORKDIR /home/wheelchair1/
 RUN sudo apt-get update \
     && python3 -m pip install --upgrade pip \
     && python3 -m pip install open3d \
-    && python3 -m pip install "jax[$JAX_CUDA_CUDNN]" \
+    && python3 -m pip install --no-cache-dir jax==0.2.20 jaxlib==0.3.2+cuda11.cudnn82 \
     -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
