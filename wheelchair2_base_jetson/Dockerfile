@@ -1,4 +1,4 @@
-FROM dustynv/ros:humble-desktop-l4t-r36.4.0
+FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:v1.0
 
 # Add the following labels
 LABEL org.opencontainers.image.description="Wheelchair2-Jetson"
@@ -10,8 +10,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 # handle default shell
 SHELL ["/bin/bash", "-c"]
 
-# Install Basic deps
-# COPY rosPkgs.list /tmp/rosPkgs.list$(cat /tmp/rosPkgs.list)
+
 RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends  \
     libssl-dev \
@@ -51,3 +50,8 @@ RUN sudo mkdir -p /etc/udev/rules.d && \
 RUN mkdir build && cd build \
     && cmake ../ \
     && sudo make uninstall && make clean && make && sudo make install 
+
+COPY rosPkgs.list /tmp/rosPkgs.list
+RUN sudo apt-get update \
+    && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
+    && sudo rm -rf /var/lib/apt/lists/*

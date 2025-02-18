@@ -6,3 +6,4 @@ ros-humble-nav2-bringup
 ros-humble-navigation2
 ros-humble-spatio-temporal-voxel-layer
 ros-humble-hardware-interface
+ros-humble-pcl-ros
