@@ -55,3 +55,4 @@ COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
+    
