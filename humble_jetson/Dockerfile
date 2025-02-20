@@ -7,7 +7,7 @@ ARG UID=1000
 ARG GID=1000
 
 # add new sudo user
-ENV USERNAME jetson
+ENV USERNAME wheelchair2
 ENV HOME /home/$USERNAME
 RUN useradd -m $USERNAME && \
     echo "$USERNAME:$USERNAME" | chpasswd && \
