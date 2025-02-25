@@ -1,0 +1,44 @@
+FROM crowdsurfer_base
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update -y && apt-get install -y git
+
+RUN python3 -m  pip install gdown
+
+RUN mkdir -p /home/CrowdSurfer_ws/src
+
+WORKDIR /home/CrowdSurfer_ws/src
+
+RUN git clone https://github.com/TempleRAIL/robot_gazebo.git
+# RUN git clone https://github.com/Smart-Wheelchair-RRC/pedsim_ros_with_gazebo.git
+RUN mkdir pedsim_ros_with_gazebo
+COPY pedsim_ros_with_gazebo ./pedsim_ros_with_gazebo
+
+RUN wget https://raw.githubusercontent.com/zzuxzt/turtlebot2_noetic_packages/master/turtlebot2_noetic_install.sh
+RUN sh turtlebot2_noetic_install.sh
+RUN git clone https://github.com/Smart-Wheelchair-RRC/CrowdSurfer.git
+
+RUN source /opt/ros/noetic/setup.bash
+
+WORKDIR /home/CrowdSurfer_ws/
+
+RUN rosdep install --from-paths src --ignore-src -r -y
+
+RUN source /opt/ros/noetic/setup.bash && catkin_make
+
+RUN echo "source /home/CrowdSurfer_ws/devel/setup.bash" >> ~/.bashrc
+RUN source ~/.bashrc
+
+RUN pip3 install gdown
+
+WORKDIR /home/CrowdSurfer_ws/src/CrowdSurfer/src/CrowdSurfer
+RUN mkdir checkpoints && cd checkpoints
+RUN gdown https://drive.google.com/drive/folders/1HSRrbuwwNk9_C1WKN9qnStjemFLukO8s?usp=sharing --folder
+
+WORKDIR /home/CrowdSurfer_ws/
+
+RUN rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["/bin/bash", "-c"]

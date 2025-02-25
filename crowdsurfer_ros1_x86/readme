@@ -1,0 +1,3 @@
+clone "git clone https://github.com/Smart-Wheelchair-RRC/pedsim_ros_with_gazebo.git" before building the docker file
+
+docker build --network=host  -t crowdsurfer .
