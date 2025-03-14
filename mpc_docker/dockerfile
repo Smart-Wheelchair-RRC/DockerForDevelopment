@@ -1,0 +1,10 @@
+FROM wheelchair1_crowdsurfer_x86
+
+RUN apt-get update -y
+
+WORKDIR /home
+
+RUN apt-get update && apt-get install -y python3-pip git
+RUN pip3 install casadi matplotlib
+RUN git clone https://github.com/Smart-Wheelchair-RRC/casadi-mpc.git /tmp/casadi-mpc
+CMD ["bash"]
