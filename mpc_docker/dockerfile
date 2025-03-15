@@ -1,4 +1,4 @@
-FROM wheelchair1_crowdsurfer_x86
+FROM cuda_ros_docker
 
 RUN apt-get update -y
 
