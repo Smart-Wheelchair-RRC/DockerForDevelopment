@@ -67,4 +67,4 @@ RUN git clone https://github.com/ros-controls/gz_ros2_control -b humble . \
 WORKDIR /home/wheelchair2/gz_ros2_control_ws
 RUN source /opt/ros/humble/setup.bash \
     && colcon build \
-    && source install.setup.bash 
+    && echo "source ~/gz_ros2_control_ws/install/setup.bash" | sudo tee -a ~/.bashrc > /dev/null  
