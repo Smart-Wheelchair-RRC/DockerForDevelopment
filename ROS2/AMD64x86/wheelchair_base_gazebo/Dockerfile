@@ -64,7 +64,27 @@ WORKDIR /home/wheelchair2/gz_ros2_control_ws/src
 RUN git clone https://github.com/ros-controls/gz_ros2_control -b humble . \
     && export GZ_VERSION=harmonic \
     && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y --skip-keys="ros_gz_bridge ros_gz_sim" 
+
 WORKDIR /home/wheelchair2/gz_ros2_control_ws
 RUN source /opt/ros/humble/setup.bash \
     && colcon build \
     && echo "source ~/gz_ros2_control_ws/install/setup.bash" | sudo tee -a ~/.bashrc > /dev/null  
+
+RUN sudo mkdir -p /opt/nvidia/
+COPY NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/ /opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
+ENV OptiX_INSTALL_DIR=/opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
+
+WORKDIR /home/wheelchair2
+RUN git clone https://github.com/RobotecAI/RobotecGPULidar.git \
+    && cd RobotecGPULidar && ./setup.py --install-deps \
+    && ./setup.py
+
+WORKDIR /home/wheelchair2
+RUN git clone https://github.com/RobotecAI/RGLGazeboPlugin.git \
+    && cd RGLGazeboPlugin \
+    && mkdir build && cd build \
+    && cmake .. && sudo make -j && sudo make install
+
+
+
+
