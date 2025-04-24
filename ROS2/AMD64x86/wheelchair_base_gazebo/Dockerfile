@@ -85,6 +85,8 @@ RUN git clone https://github.com/RobotecAI/RGLGazeboPlugin.git \
     && mkdir build && cd build \
     && cmake .. && sudo make -j && sudo make install
 
-
+ENV GZ_GUI_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLVisualize
+ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLServerPlugin
+ENV RGL_PATTERNS_DIR=/home/wheelchair2/RGLGazeboPlugin/lidar_patterns
 
 
