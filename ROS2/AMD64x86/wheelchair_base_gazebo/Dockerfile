@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:cuda-12.2
+FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:latest
 
 # Add the following labels
 LABEL org.opencontainers.image.description="Wheelchair2"
@@ -75,16 +75,15 @@ COPY NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/ /opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-l
 ENV OptiX_INSTALL_DIR=/opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
 
 WORKDIR /home/wheelchair2
-RUN git clone https://github.com/RobotecAI/RobotecGPULidar.git \
-    && cd RobotecGPULidar && ./setup.py --install-deps \
-    && ./setup.py
-
-WORKDIR /home/wheelchair2
 RUN git clone https://github.com/RobotecAI/RGLGazeboPlugin.git \
     && cd RGLGazeboPlugin \
     && mkdir build && cd build \
     && cmake .. && sudo make -j && sudo make install
 
+# Environment variable for RGLGazeboPlugin
 ENV GZ_GUI_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLVisualize
 ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLServerPlugin
 ENV RGL_PATTERNS_DIR=/home/wheelchair2/RGLGazeboPlugin/lidar_patterns
+
+# Environment variable for map folder
+ENV MAP_DIR=/home/wheelchair2/wheelchair2/src/wheelchair2_navigation/maps
