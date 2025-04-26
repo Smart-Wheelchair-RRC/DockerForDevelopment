@@ -31,15 +31,6 @@ RUN sudo apt-get update \
     && sudo apt-get clean -y \
     && sudo rm -rf /var/lib/apt/lists/*
 
-# Build and install Livox-SDK2
-WORKDIR /home/wheelchair2/wheelchair2
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
-RUN cd Livox-SDK2 \
-    && mkdir build \
-    && cd build \
-    && cmake .. && make -j \
-    && sudo make install
-
 # Build and install Realsense-SDK
 WORKDIR /home/wheelchair2
 RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
@@ -49,7 +40,16 @@ RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
 RUN mkdir build && cd build \
     && cmake ../ \
-    && sudo make uninstall && make clean && make && sudo make install 
+    && sudo make uninstall && make clean && make && sudo make install
+
+# Build and install Livox-SDK2
+WORKDIR /home/wheelchair2
+RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+RUN cd Livox-SDK2 \
+    && mkdir build \
+    && cd build \
+    && cmake .. && make -j \
+    && sudo make install
 
 COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \

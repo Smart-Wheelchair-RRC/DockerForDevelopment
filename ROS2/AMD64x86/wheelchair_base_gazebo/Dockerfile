@@ -31,15 +31,6 @@ RUN sudo apt-get update \
     && sudo apt-get clean -y \
     && sudo rm -rf /var/lib/apt/lists/*
 
-# Build and install Livox-SDK2
-WORKDIR /home/wheelchair2/wheelchair2
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
-RUN cd Livox-SDK2 \
-    && mkdir build \
-    && cd build \
-    && cmake .. && make -j \
-    && sudo make install
-
 # Build and install Realsense-SDK
 WORKDIR /home/wheelchair2
 RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
@@ -50,6 +41,15 @@ RUN sudo mkdir -p /etc/udev/rules.d && \
 RUN mkdir build && cd build \
     && cmake ../ \
     && sudo make uninstall && make clean && make && sudo make install
+
+# Build and install Livox-SDK2
+WORKDIR /home/wheelchair2
+RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+RUN cd Livox-SDK2 \
+    && mkdir build \
+    && cd build \
+    && cmake .. && make -j \
+    && sudo make install
 
 RUN sudo bash -c 'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/00-gazebo.list -O /etc/ros/rosdep/sources.list.d/00-gazebo.list' \
     && rosdep update \
@@ -88,5 +88,3 @@ RUN git clone https://github.com/RobotecAI/RGLGazeboPlugin.git \
 ENV GZ_GUI_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLVisualize
 ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLServerPlugin
 ENV RGL_PATTERNS_DIR=/home/wheelchair2/RGLGazeboPlugin/lidar_patterns
-
-
