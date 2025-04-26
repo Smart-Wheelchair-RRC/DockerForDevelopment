@@ -6,12 +6,14 @@ Docker images for Easy ROS1 and ROS2 development with the wheelchair.
 The following Docker images are available:
 
 -   `humble`:  Based on `ubuntu:jammy`, this image includes ROS 2 Humble Hawksbill packages and a non-root user for enhanced security.
+-   `humble_gpu`:  Based on `nvidia/cuda:12.2.2-devel-ubuntu22.04`, this image includes ROS 2 Humble Hawksbill packages, CUDA, CuDNN and a non-root user for enhanced security.
+-   `humble_harmonic`:  Extends the `humble_gpu` image and includes Gazebo Harmonic, which works better with `humble-gz_sim` related deps. Hence this is **Recommended** over `fortress`.
 -   `wheelchair2_base`:  Extends the `humble` image and includes Realsense and Livox SDK's
 -   `humble_jetson`:  Based on `ubuntu:jammy for ARM64`, this image includes ROS 2 Humble Hawksbill packages and a non-root user for enhanced security.
 -   `wheelchair2_base_jetson`:  Extends the `humble_jetson` image and includes Realsense and Livox SDK's 
+-   `wheelchair2_base_gazebo`: Extends `humble_harmonic` image and includes `ros2_control`, `RGLGazeboPlugin`, `Nvidia Optix` for gz-sim and Realsense and Livox SDK's for real-world runs.
 
 **Important Note:** The `ROS1` images are currently **under development** and have not been heavily tested.  They may be unstable or contain significant bugs.
- 
  
 ## Usage
 
