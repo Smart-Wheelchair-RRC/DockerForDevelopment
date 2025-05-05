@@ -1,0 +1,44 @@
+FROM osrf/ros:noetic-desktop-full
+
+ENV DEBIAN_FRONTEND=noninteractive 
+
+RUN apt-get update -y
+
+WORKDIR /home
+
+RUN apt-get install libssl-dev libusb-1.0-0-dev libudev-dev pkg-config libgtk-3-dev -y
+RUN apt-get install git wget cmake build-essential -y
+
+RUN apt-get install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at -y
+
+RUN git clone https://github.com/IntelRealSense/librealsense.git
+
+WORKDIR /home/librealsense
+
+RUN mkdir build
+
+WORKDIR /home/librealsense/build
+
+RUN cmake ../
+RUN make uninstall && make clean && make && make install
+
+WORKDIR /home
+
+RUN git clone https://github.com/laksh-nanwani/wheelchair-camera-lidar.git
+
+WORKDIR /home/wheelchair-camera-lidar/workspace/src/dependencies
+
+RUN git clone https://github.com/laksh-nanwani/voronoi_planner.git
+RUN git clone https://github.com/frontw/dynamicvoronoi.git
+
+WORKDIR /home/wheelchair-camera-lidar/workspace
+
+RUN apt-get install liborocos-bfl-dev ros-noetic-navigation ros-noetic-geometry2 ros-noetic-geographic-info ros-noetic-robot-navigation -y
+
+RUN rosdep install --from-paths src --ignore-src -r -y
+RUN catkin_make
+
+RUN rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]
