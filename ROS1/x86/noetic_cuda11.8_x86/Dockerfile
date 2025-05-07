@@ -12,12 +12,12 @@ RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | (ap
 
 RUN apt-get update -y
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
-ENV ROS_DISTRO noetic
+ENV ROS_DISTRO=noetic
 
-ENV TZ 'Asia/Kolkata'
+ENV TZ='Asia/Kolkata'
 RUN echo $TZ > /etc/timezone && \
     apt-get update && apt-get install -y tzdata && \
     rm /etc/localtime && \
