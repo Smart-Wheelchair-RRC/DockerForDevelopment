@@ -18,8 +18,8 @@
    - Installs extra packages and Python libraries needed for the Crowdsurfer base.
    - Serves as the foundation for further ROS1 development for crowdsurfer applications.
    
-   Docker build command:  
-   `docker build -t crowdsurfer_base -f ROS1/x86/ros1_crowdsurfer_base_x86/dockerfile ROS1/ros1_crowdsurfer_base_x86`
+   Docker build command for x86:  
+   `docker build -t crowdsurfer_base -f ROS1/x86/ros1_crowdsurfer_base_x86/dockerfile ROS1/x86/ros1_crowdsurfer_base_x86`
 
 4. **crowdsurfer_ros1_x86** (base image: `crowdsurfer_base`)  
    *Call file name: `crowdsurfer`*  
@@ -27,8 +27,8 @@
    - Installs tools like gdown and additional ROS packages.
    - Configures a workspace for building and running the Crowdsurfer ROS1 application.
    
-   Docker build command:  
-   `docker build -t crowdsurfer -f ROS1/crowdsurfer_ros1_x86/dockerfile ROS1/crowdsurfer_ros1_x86`
+   Docker build command for x86:  
+   `docker build -t crowdsurfer -f ROS1/x86/crowdsurfer_ros1_x86/dockerfile ROS1/x86/crowdsurfer_ros1_x86`
 
 5. **wheelchair1_crowdsurfer_x86** (base image: `crowdsurfer`)  
    *Call file name: `wheelchair1_crowdsurfer`*  
@@ -37,5 +37,5 @@
    - Clones and configures the wheelchair camera–lidar application.
    - Prepares the final image for running the complete wheelchair integration.
    
-   Docker build command:  
-   `docker build -t wheelchair1_crowdsurfer -f ROS1/wheelchair1_crowdsurfer_x86/dockerfile ROS1/wheelchair1_crowdsurfer_x86`
+   Docker build command for x86:  
+   `docker build -t wheelchair1_crowdsurfer -f ROS1/x86/wheelchair1_crowdsurfer_x86/dockerfile ROS1/x86/wheelchair1_crowdsurfer_x86`
