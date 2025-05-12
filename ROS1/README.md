@@ -42,5 +42,4 @@
 
 ### Running the container
 ```
-xhost +local:docker
-docker run -it –rm --privileged --cap-add=SYS_NICE --ulimit rtprio=99 --ulimit rttime=-1 --ulimit memlock=8428281856 --cap-add=all --security-opt seccomp:unconfined –security-opt apparmor:unconfined --volume=/dev:/dev --net=host --ipc=host -e DISPLAY=$DISPLAY -e WAYLAND_DISPLAY="${WAYLAND_DISPLAY}"  -e XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" -e PULSE_SERVER="${PULSE_SERVER}" -e QT_X11_NO_MITSHM="1"  -e LIBGL_ALWAYS_SOFTWARE="1"  --device /dev/ttyUSB0:/dev/ttyUSB0 --entrypoint /bin/bash --name wheelchair_cs -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:/root/.Xauthority:rw wheelchair1_crowdsurfer```
+docker run -it –rm --privileged --cap-add=SYS_NICE --ulimit rtprio=99 --ulimit rttime=-1 --ulimit memlock=8428281856 --cap-add=all --security-opt seccomp:unconfined –security-opt apparmor:unconfined --volume=/dev:/dev --net=host --ipc=host -e DISPLAY=$DISPLAY -e WAYLAND_DISPLAY="${WAYLAND_DISPLAY}"  -e XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" -e PULSE_SERVER="${PULSE_SERVER}" -e QT_X11_NO_MITSHM="1"  -e LIBGL_ALWAYS_SOFTWARE="1"  --device /dev/ttyUSB0:/dev/ttyUSB0 --entrypoint /bin/bash --name wheelchair_cs ``
