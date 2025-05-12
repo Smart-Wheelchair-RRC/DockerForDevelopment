@@ -39,3 +39,7 @@
    
    Docker build command for x86:  
    `docker build -t wheelchair1_crowdsurfer -f ROS1/x86/wheelchair1_crowdsurfer_x86/dockerfile ROS1/x86/wheelchair1_crowdsurfer_x86`
+
+### Running the container
+```
+docker run -it –rm --privileged --cap-add=SYS_NICE --ulimit rtprio=99 --ulimit rttime=-1 --ulimit memlock=8428281856 --cap-add=all --security-opt seccomp:unconfined –security-opt apparmor:unconfined --volume=/dev:/dev --net=host --ipc=host -e DISPLAY=$DISPLAY -e WAYLAND_DISPLAY="${WAYLAND_DISPLAY}"  -e XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" -e PULSE_SERVER="${PULSE_SERVER}" -e QT_X11_NO_MITSHM="1"  -e LIBGL_ALWAYS_SOFTWARE="1"  --device /dev/ttyUSB0:/dev/ttyUSB0 --entrypoint /bin/bash --name wheelchair_cs ``
