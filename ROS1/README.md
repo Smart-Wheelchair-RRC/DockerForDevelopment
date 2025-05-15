@@ -42,4 +42,18 @@
 
 ### Running the container
 ```
-docker run -it –rm --privileged --cap-add=SYS_NICE --ulimit rtprio=99 --ulimit rttime=-1 --ulimit memlock=8428281856 --cap-add=all --security-opt seccomp:unconfined –security-opt apparmor:unconfined --volume=/dev:/dev --net=host --ipc=host -e DISPLAY=$DISPLAY -e WAYLAND_DISPLAY="${WAYLAND_DISPLAY}"  -e XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" -e PULSE_SERVER="${PULSE_SERVER}" -e QT_X11_NO_MITSHM="1"  -e LIBGL_ALWAYS_SOFTWARE="1"  --device /dev/ttyUSB0:/dev/ttyUSB0 --entrypoint /bin/bash --name wheelchair_cs ``
+docker run -it --rm --privileged --gpus=all --cap-add=SYS_NICE --ulimit rtprio=99 --ulimit rttime=-1 --ulimit memlock=8428281856 --cap-add=all --security-opt seccomp:unconfined --security-opt apparmor:unconfined --volume=/dev:/dev --net=host --ipc=host -e DISPLAY="${DISPLAY}" -e WAYLAND_DISPLAY="${WAYLAND_DISPLAY}" -e XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" -e PULSE_SERVER="${PULSE_SERVER}" -e QT_X11_NO_MITSHM="1" -e LIBGL_ALWAYS_SOFTWARE="1" --device /dev/ttyUSB0:/dev/ttyUSB0 --entrypoint /bin/bash --name wheelchair_cs wheelchair1_crowdsurfer
+```
+
+### Running the wheelchair
+
+```
+# in a seperate terminal
+roslaunch wheelchair_laser wheelchair_msg_MID360.launch 
+roslaunch crowdsurfer_ros wheelchair_nav_fastlio.launch 
+roslaunch kangaroo_driver kangaroo_driver.launch publish_odom:=false
+rosrun crowdsurfer_ros ros_interface.py
+```
+
+
+
