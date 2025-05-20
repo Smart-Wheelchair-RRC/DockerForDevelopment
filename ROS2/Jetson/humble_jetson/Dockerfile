@@ -1,152 +1,104 @@
-FROM docker.io/arm64v8/ubuntu:22.04
+FROM nvidia/cuda:12.2.2-base-ubuntu22.04
 
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES all
+# basic args
+ARG ROS_DISTRO=humble
+ARG USERNAME=wheelchair2
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
-ARG UID=1000
-ARG GID=1000
+# Add the following labels
+LABEL org.opencontainers.image.description="Docker Development Container"
+LABEL org.opencontainers.image.title="ROS2Dev"
+LABEL org.opencontainers.image.vendor="Tarun R"
+LABEL org.opencontainers.image.source="https://github.com/Smart-Wheelchair-RRC/DockerForDevelopment"
+LABEL maintainer="tarun.ramak@gmail.com"
+LABEL org.opencontainers.image.licenses="MIT"
 
-# add new sudo user
-ENV USERNAME wheelchair2
-ENV HOME /home/$USERNAME
-RUN useradd -m $USERNAME && \
-    echo "$USERNAME:$USERNAME" | chpasswd && \
-    usermod --shell /bin/bash $USERNAME && \
-    usermod -aG sudo $USERNAME && \
-    mkdir /etc/sudoers.d && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME && \
-    usermod  --uid $UID $USERNAME && \
-    groupmod --gid $GID $USERNAME
-RUN gpasswd -a $USERNAME video
+# handle default shell
+SHELL ["/bin/bash", "-c"]
+ENV SHELL=/bin/bash
 
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && \
-    apt-get install -qq -y --no-install-recommends \
-    bash-completion \
-    bc \
-    build-essential \
-    bzip2 \
-    can-utils \
-    ca-certificates \
-    cmake \
-    command-not-found \
-    curl \
-    emacs \
-    freeglut3-dev \
-    git \
+# setup timezone
+RUN echo 'Asia/Kolkata' > /etc/timezone && \
+    ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && \
+    apt-get update && \
+    apt-get install -q -y --no-install-recommends tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
+# install packages
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    dirmngr \
     gnupg2 \
-    gstreamer1.0-alsa \
-    gstreamer1.0-libav \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-tools \
-    i2c-tools \
-    iproute2 \
-    iputils-ping \
-    iw \
-    kbd \
-    kmod \
-    language-pack-en-base \
-    libapt-pkg-dev \
-    libcanberra-gtk3-module \
-    libgles2 \
-    libglu1-mesa-dev \
-    libglvnd-dev \
-    libgtk-3-0 \
-    libudev1 \
-    libvulkan1 \
-    libzmq5 \
-    mesa-utils \
-    mtd-utils \
-    parted \
-    pciutils \
-    python3 \
-    python3-distutils \
-    python3-numpy \
-    python3-pexpect \
-    python3-pip \
-    sox \
-    sudo \
-    tmux \
-    udev \
-    vulkan-tools \
-    wget \
-    wireless-tools \
-    wpasupplicant \
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# EGL
-RUN echo "/usr/lib/aarch64-linux-gnu/tegra" >> /etc/ld.so.conf.d/nvidia-tegra.conf && \
-    echo "/usr/lib/aarch64-linux-gnu/tegra-egl" >> /etc/ld.so.conf.d/nvidia-tegra.conf
-RUN rm -rf /usr/share/glvnd/egl_vendor.d && \
-    mkdir -p /usr/share/glvnd/egl_vendor.d/ && echo '\
-    {\
-    "file_format_version" : "1.0.0",\
-    "ICD" : {\
-    "library_path" : "libEGL_nvidia.so.0"\
-    }\
-    }' > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-RUN mkdir -p /usr/share/egl/egl_external_platform.d/ && echo '\
-    {\
-    "file_format_version" : "1.0.0",\
-    "ICD" : {\
-    "library_path" : "libnvidia-egl-wayland.so.1"\
-    }\
-    }' > /usr/share/egl/egl_external_platform.d/nvidia_wayland.json
+# setup keys
+RUN set -eux; \
+    key='C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654'; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
+    mkdir -p /usr/share/keyrings; \
+    gpg --batch --export "$key" > /usr/share/keyrings/ros2-latest-archive-keyring.gpg; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME"
 
-RUN echo "deb https://repo.download.nvidia.com/jetson/common r35.3 main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list && \
-    echo "deb https://repo.download.nvidia.com/jetson/t234 r35.3 main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
-RUN wget -O /etc/jetson-ota-public.key https://gitlab.com/nvidia/container-images/l4t-base/-/raw/master/jetson-ota-public.key && \
-    apt-key add /etc/jetson-ota-public.key
+# setup sources.list
+RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] http://packages.ros.org/ros2/ubuntu jammy main" > /etc/apt/sources.list.d/ros2-latest.list
 
-# CUDA, cuDNN
-RUN apt-get update && \
-    apt-get install -qq -y --no-install-recommends \
-    cuda \
-    libcudnn8 \
-    libcudnn8-dev \
-    libcudnn8-samples \
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# setup environment
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
-RUN ldconfig
-
-# install ROS2 Humble
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-humble-desktop \
-    ros-humble-rmw-cyclonedds-cpp \
-    ros-humble-rosbag2-storage-mcap \
-    ros-dev-tools \
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# install colcon and rosdep
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-colcon-common-extensions \
-    python3-rosdep \
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+# Create non root user with sudo privilege
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 USER $USERNAME
-WORKDIR /home/$USERNAME
-SHELL ["/bin/bash", "-l", "-c"]
 
-RUN echo "export PATH=/usr/local/cuda/bin:$PATH" >> ~/.bashrc && \
-    echo "export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH" >> ~/.bashrc
+ENV ROS_DISTRO=$ROS_DISTRO
 
-# initialize rosdep
+# install ros2 packages
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    ros-$ROS_DISTRO-desktop \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+# setup entrypoint
+COPY ./ros_entrypoint.sh /
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+
+# install bootstrap tools
+RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    bash-completion \
+    python3-colcon-common-extensions \
+    python3-colcon-mixin \
+    python3-rosdep \
+    python3-vcstool \
+    python3-pip \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+# bootstrap rosdep
 RUN sudo rosdep init && \
-    rosdep update
+    rosdep update --rosdistro $ROS_DISTRO
 
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
-    echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
+# setup colcon mixin and metadata
+RUN sudo colcon mixin add default \
+    https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml && \
+    sudo colcon mixin update && \
+    sudo colcon metadata add default \
+    https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml && \
+    sudo colcon metadata update
+
+RUN sudo pip3 install -U \
+    argcomplete
+
+# echo sources
+RUN echo 'source /usr/share/bash-completion/bash_completion' | sudo tee -a ~/.bashrc > /dev/null && \
+    echo 'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash' | sudo tee -a ~/.bashrc > /dev/null && \
+    echo "source /opt/ros/${ROS_DISTRO}/setup.bash" | sudo tee -a ~/.bashrc > /dev/null && \
+    echo 'eval "$(register-python-argcomplete3 ros2)"' | sudo tee -a ~/.bashrc > /dev/null && \
+    echo 'eval "$(register-python-argcomplete3 colcon)"' | sudo tee -a ~/.bashrc > /dev/null
