@@ -90,5 +90,19 @@ RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
 
+RUN sudo apt-get update \
+    && sudo apt-get -y install --no-install-recommends\
+    tmux \
+    vim \
+    nano \
+    tree \
+    && sudo apt-get autoremove -y \
+    && sudo apt-get clean -y \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+# Set TERM and colorful prompt in bashrc
+RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
+    echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
+
 # Environment variable for map folder
 ENV MAP_DIR=/home/wheelchair2/wheelchair2/src/wheelchair2_navigation/maps
