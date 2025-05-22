@@ -5,7 +5,7 @@ RUN apt-get update -y \
     && apt-get install -y libssl-dev libusb-1.0-0-dev libudev-dev pkg-config libgtk-3-dev \
     && apt-get install -y libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at \
     && apt-get install -y liborocos-bfl-dev ros-noetic-navigation ros-noetic-geometry2 ros-noetic-geographic-info ros-noetic-robot-navigation \
-    && apt-get install -y ros-noetic-ros-numpy \
+    && apt-get install -y ros-noetic-ddynamic-reconfigure ros-noetic-librealsense2 ros-noetic-ros-numpy \
     && apt-get install -y git wget python3-pip \
     && pip install gdown \
     && rm -rf /var/lib/apt/lists/*
