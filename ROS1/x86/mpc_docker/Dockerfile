@@ -1,4 +1,4 @@
-FROM cuda_ros_docker
+FROM noetic_gpu
 
 RUN apt-get update -y
 
