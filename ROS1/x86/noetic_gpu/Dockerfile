@@ -28,8 +28,6 @@ RUN echo $TZ > /etc/timezone && \
 RUN apt install -y ros-noetic-desktop-full
 
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
-# RUN . ~/.bashrc
-# SHELL ["/bin/bash", "-c", "source ~/.bashrc"]
 
 RUN apt-get update && apt-get install --no-install-recommends -y build-essential python3-rosdep python3-rosinstall python3-vcstools
 
@@ -38,7 +36,6 @@ RUN rosdep init && rosdep update -y
 RUN rm -rf /var/lib/apt/lists/*
 
 COPY ./ros_entrypoint.sh /
-# RUN chmod +x ros_entrypoint.sh
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
