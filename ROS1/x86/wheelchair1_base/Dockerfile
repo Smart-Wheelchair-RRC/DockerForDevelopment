@@ -61,10 +61,9 @@ WORKDIR $WHEELCHAIR_WORKSPACE
 
 ENV ROS_DISTRO=noetic
 
-RUN source /root/.bashrc \ 
+RUN source /opt/ros/noetic/setup.bash \ 
     && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
-    && catkin config --extend /opt/ros/$ROS_DISTRO \
     && catkin_make
 
 # Source environments in bashrc
