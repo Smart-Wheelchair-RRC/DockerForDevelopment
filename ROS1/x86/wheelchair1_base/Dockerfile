@@ -2,6 +2,7 @@ FROM noetic_gpu
 
 # Ensure bash is used as the default shell to invoke .bashrc
 SHELL ["/bin/bash", "-c"]
+ENV ROS_DISTRO=noetic
 
 RUN apt-get update -y \
     && apt-get install -y git wget cmake build-essential \
@@ -35,8 +36,6 @@ RUN git clone https://github.com/IntelRealSense/librealsense.git \
     && make install \
     && cd /home \
     && rm -rf librealsense
-
-ENV ROS_DISTRO=noetic
 
 # LIVOX ROS2 Drivers - Install and build first since it requires a separate build command
 RUN git clone https://github.com/Livox-SDK/livox_ros_driver2.git $WHEELCHAIR_WORKSPACE/src/livox_ros_driver2 \

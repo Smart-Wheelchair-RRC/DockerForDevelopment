@@ -2,6 +2,7 @@ FROM wheelchair1_base
 
 # Ensure bash is used as the default shell to invoke .bashrc
 SHELL ["/bin/bash", "-c"]
+ENV ROS_DISTRO=noetic
 
 WORKDIR /home
 ENV WHEELCHAIR_WORKSPACE=/home/wheelchair_ws
@@ -36,7 +37,9 @@ RUN wget https://raw.githubusercontent.com/zzuxzt/turtlebot2_noetic_packages/mas
 WORKDIR ${WHEELCHAIR_WORKSPACE}
 
 # Install ROS dependencies and build
-RUN rosdep update \
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+    && source ${WHEELCHAIR_WORKSPACE}/devel/setup.bash \
+    && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
     && catkin_make
 
