@@ -1,5 +1,6 @@
 FROM wheelchair1_base
 
+# Ensure bash is used as the default shell to invoke .bashrc
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /home
