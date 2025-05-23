@@ -57,7 +57,8 @@ RUN gdown 1vdt7-NKDv4nZnFPBKbx8Y3MMlGgkP_kq -O $WHEELCHAIR_PACKAGES/FAST_LIO_LOC
 
 WORKDIR $WHEELCHAIR_WORKSPACE
 
-RUN rosdep update \
+RUN source /root/.bashrc \ 
+    && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
     && catkin_make
 
