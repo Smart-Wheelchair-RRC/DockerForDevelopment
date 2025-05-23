@@ -9,7 +9,7 @@ RUN apt-get update -y \
     && apt-get install -y libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at \
     && apt-get install -y liborocos-bfl-dev ros-noetic-navigation ros-noetic-geometry2 ros-noetic-geographic-info ros-noetic-robot-navigation \
     && apt-get install -y ros-noetic-ddynamic-reconfigure ros-noetic-librealsense2 ros-noetic-ros-numpy \
-    && apt-get install -y git wget python3-pip \
+    && apt-get install -y git wget python3-pip python3-catkin-tools\
     && pip install gdown \
     && rm -rf /var/lib/apt/lists/*
 
