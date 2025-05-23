@@ -36,9 +36,12 @@ RUN git clone https://github.com/IntelRealSense/librealsense.git \
     && cd /home \
     && rm -rf librealsense
 
+ENV ROS_DISTRO=noetic
+
 # LIVOX ROS2 Drivers - Install and build first since it requires a separate build command
 RUN git clone https://github.com/Livox-SDK/livox_ros_driver2.git $WHEELCHAIR_WORKSPACE/src/livox_ros_driver2 \
     && cd $WHEELCHAIR_WORKSPACE/src/livox_ros_driver2 \
+    && source /opt/ros/${ROS_DISTRO}/setup.bash \
     && ./build.sh ROS1
 
 # Wheelchair Packages
@@ -59,10 +62,7 @@ RUN gdown 1vdt7-NKDv4nZnFPBKbx8Y3MMlGgkP_kq -O $WHEELCHAIR_PACKAGES/FAST_LIO_LOC
 
 WORKDIR $WHEELCHAIR_WORKSPACE
 
-ENV ROS_DISTRO=noetic
-
-RUN source /opt/ros/${ROS_DISTRO}/setup.bash \ 
-    && source ${WHEELCHAIR_WORKSPACE}/devel/setup.bash \
+RUN source ${WHEELCHAIR_WORKSPACE}/devel/setup.bash \
     && rosdep update \
     && rosdep install --from-paths src --ignore-src -r -y \
     && catkin_make
