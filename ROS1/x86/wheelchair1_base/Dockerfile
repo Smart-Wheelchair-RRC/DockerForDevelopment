@@ -35,6 +35,7 @@ RUN wget https://raw.githubusercontent.com/zzuxzt/turtlebot2_noetic_packages/mas
     && sudo apt-get install ros-noetic-kobuki-dock-drive
     && sudo apt-get install ros-noetic-joy
     && sudo apt-get install ros-noetic-kobuki-driver
+    && python -m pip install defusedxml
 
 # Realsense SDK
 RUN git clone https://github.com/IntelRealSense/librealsense.git \
