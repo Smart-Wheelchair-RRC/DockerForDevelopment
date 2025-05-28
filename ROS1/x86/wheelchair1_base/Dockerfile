@@ -27,6 +27,17 @@ RUN git clone https://github.com/Livox-SDK/Livox-SDK2.git \
     && cd /home \
     && rm -rf Livox-SDK2
 
+# turtlebot noetic packages for simulation
+RUN wget https://raw.githubusercontent.com/zzuxzt/turtlebot2_noetic_packages/master/turtlebot2_noetic_install.sh
+    && sh turtlebot2_noetic_install.sh
+    && sudo apt-get install ros-noetic-sophus
+    && sudo apt-get install ros-noetic-kobuki-msgs
+    && sudo apt-get install ros-noetic-kobuki-dock-drive
+    && sudo apt-get install ros-noetic-joy
+    && sudo apt-get install ros-noetic-kobuki-driver
+    && python -m pip install defusedxml
+    && rm -rf turtlebot2_noetic_install.sh
+
 # Realsense SDK
 RUN git clone https://github.com/IntelRealSense/librealsense.git \
     && mkdir librealsense/build \
