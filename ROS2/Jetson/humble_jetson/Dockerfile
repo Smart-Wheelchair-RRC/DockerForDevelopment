@@ -1,8 +1,8 @@
-FROM nvidia/cuda:12.2.2-base-ubuntu22.04
+FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
 
 # basic args
 ARG ROS_DISTRO=humble
-ARG USERNAME=wheelchair2
+ARG USERNAME=container_user
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 

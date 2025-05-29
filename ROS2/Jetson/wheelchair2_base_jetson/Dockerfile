@@ -1,8 +1,10 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:latest
+FROM ghcr.io/smart-wheelchair-rrc/humble_jetson_jetpack:latest
+
+ARG USERNAME=container_user
 
 # Add the following labels
-LABEL org.opencontainers.image.description="Wheelchair2-Jetson"
-LABEL org.opencontainers.image.title="Wheelchair2BaseJetson"
+LABEL org.opencontainers.image.description="Wheelchair2"
+LABEL org.opencontainers.image.title="Wheelchair2DevCon"
 LABEL org.opencontainers.image.vendor="Tarun R"
 LABEL org.opencontainers.image.source="https://github.com/Smart-Wheelchair-RRC/DockerForDevelopment"
 LABEL maintainer="tarun.ramak@gmail.com"
@@ -32,9 +34,9 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Build and install Realsense-SDK
-WORKDIR /home/wheelchair2
+WORKDIR /home/$USERNAME
 RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
-WORKDIR /home/wheelchair2/librealsense
+WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
@@ -43,7 +45,7 @@ RUN mkdir build && cd build \
     && sudo make uninstall && make clean && make && sudo make install
 
 # Build and install Livox-SDK2
-WORKDIR /home/wheelchair2
+WORKDIR /home/$USERNAME
 RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
@@ -76,4 +78,4 @@ RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
 
 # Environment variable for map folder
-ENV MAP_DIR=/home/wheelchair2/wheelchair2/src/wheelchair2_navigation/maps
+ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
