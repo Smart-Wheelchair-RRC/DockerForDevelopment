@@ -15,11 +15,16 @@ on:
         description: 'Version/tag for the Docker image'
         required: true
         type: string
+      runs_on:
+        description: 'The type of runner to use'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
 
 jobs:
   build-and-push:
     name: Build and Push Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     permissions:
       contents: read
       packages: write

@@ -39,183 +39,83 @@ jobs:
               - '.github/workflows/**'
 
   # Stage 1: ROS2 base humble images (AMD64/x86)
-  ros2-humble-base:
+  ros2-humble-base-amd64:
     needs: changes
     if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
-    name: ROS2 Humble Base Images
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    name: ROS2 Humble Base Images (AMD64)
     strategy:
       matrix:
         config:
           - { build_context: './ROS2/AMD64x86/humble', image_name: 'humble', image_version: 'latest' }
           - { build_context: './ROS2/AMD64x86/humble_gpu', image_name: 'humble_gpu', image_version: 'latest' }
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.config.build_context }}
-          push: true
-          tags: ghcr.io/wheelchair2/${{ matrix.config.image_name }}:${{ matrix.config.image_version }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-latest
 
   # Stage 1: ROS2 base humble images (Jetson/ARM)
   ros2-humble-jetson:
     needs: changes
     if: ${{ needs.changes.outputs.ros2-jetson == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Humble Jetson Base
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      packages: write
     strategy:
       matrix:
         config:
           - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: 'latest' }
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.config.build_context }}
-          push: true
-          tags: ghcr.io/wheelchair2/${{ matrix.config.image_name }}:${{ matrix.config.image_version }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-24.04-arm
 
   # Stage 2: ROS2 humble_harmonic (depends on base humble)
   ros2-humble-harmonic:
-    needs: [changes, ros2-humble-base]
+    needs: [changes, ros2-humble-base-amd64]
     if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Humble Harmonic
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     strategy:
       matrix:
         config:
           - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: 'latest' }
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.config.build_context }}
-          push: true
-          tags: ghcr.io/wheelchair2/${{ matrix.config.image_name }}:${{ matrix.config.image_version }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-latest
 
   # Stage 3: ROS2 wheelchair2_base images (AMD64/x86)
   ros2-wheelchair-base:
-    needs: [changes, ros2-humble-base, ros2-humble-harmonic]
+    needs: [changes, ros2-humble-base-amd64, ros2-humble-harmonic]
     if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Wheelchair2 Base Images
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     strategy:
       matrix:
         config:
           - { build_context: './ROS2/AMD64x86/wheelchair2_base', image_name: 'wheelchair2_base', image_version: 'latest' }
           - { build_context: './ROS2/AMD64x86/wheelchair2_base_gazebo', image_name: 'wheelchair2_base_gazebo', image_version: 'latest' }
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.config.build_context }}
-          push: true
-          tags: ghcr.io/wheelchair2/${{ matrix.config.image_name }}:${{ matrix.config.image_version }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-latest
 
   # Stage 3: ROS2 wheelchair2_base_jetson (depends on humble_jetson)
   ros2-wheelchair-jetson:
     needs: [changes, ros2-humble-jetson]
     if: ${{ needs.changes.outputs.ros2-jetson == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Wheelchair2 Jetson Images
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      packages: write
     strategy:
       matrix:
         config:
           - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: 'latest' }
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.config.build_context }}
-          push: true
-          tags: ghcr.io/wheelchair2/${{ matrix.config.image_name }}:${{ matrix.config.image_version }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-24.04-arm
