@@ -19,4 +19,4 @@ RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/
     && sudo apt-get install -y gz-harmonic \
     && sudo rm -rf /var/lib/apt/lists/*
 
-RUN sudo apt-get update && sudo apt-get install -y ros-humble-ros-gzharmonic
+RUN sudo apt-get update && sudo apt-get install -y ros-$ROS_DISTRO-ros-gzharmonic

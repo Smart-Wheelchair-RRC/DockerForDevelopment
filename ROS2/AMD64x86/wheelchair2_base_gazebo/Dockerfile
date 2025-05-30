@@ -61,12 +61,12 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/wheelchair2/gz_ros2_control_ws/src
-RUN git clone https://github.com/ros-controls/gz_ros2_control -b humble . \
+RUN git clone https://github.com/ros-controls/gz_ros2_control -b $ROS_DISTRO . \
     && export GZ_VERSION=harmonic \
     && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y --skip-keys="ros_gz_bridge ros_gz_sim" 
 
 WORKDIR /home/wheelchair2/gz_ros2_control_ws
-RUN source /opt/ros/humble/setup.bash \
+RUN source /opt/ros/$ROS_DISTRO/setup.bash \
     && colcon build \
     && echo "source ~/gz_ros2_control_ws/install/setup.bash" | sudo tee -a ~/.bashrc > /dev/null  
 
