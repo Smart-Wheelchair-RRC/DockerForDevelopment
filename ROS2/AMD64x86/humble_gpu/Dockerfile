@@ -29,20 +29,17 @@ RUN echo 'Asia/Kolkata' > /etc/timezone && \
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     dirmngr \
     gnupg2 \
+    curl \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-# setup keys
-RUN set -eux; \
-    key='C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654'; \
-    export GNUPGHOME="$(mktemp -d)"; \
-    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
-    mkdir -p /usr/share/keyrings; \
-    gpg --batch --export "$key" > /usr/share/keyrings/ros2-latest-archive-keyring.gpg; \
-    gpgconf --kill all; \
-    rm -rf "$GNUPGHOME"
+# enable the universe repository
+# info: https://help.ubuntu.com/community/Repositories/Ubuntu
+RUN add-apt-repository universe
 
-# setup sources.list
-RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] http://packages.ros.org/ros2/ubuntu jammy main" > /etc/apt/sources.list.d/ros2-latest.list
+# setup sources.list for ROS2
+RUN     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
+    &&  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
 # setup environment
 ENV LANG=C.UTF-8
