@@ -17,6 +17,7 @@ jobs:
       ros2-jetson: ${{ steps.filter.outputs.ros2-jetson }}
       workflow: ${{ steps.filter.outputs.workflow }}
       any_changed: ${{ steps.filter.outputs.any_changed }}
+      image_version: ${{ steps.set_version.outputs.image_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,6 +39,17 @@ jobs:
               - 'ROS2/**'
               - '.github/workflows/**'
 
+      - name: Set image version
+        id: set_version
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "image_version=test" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "image_version=latest" >> $GITHUB_OUTPUT
+          fi
+
   # Stage 1: ROS2 base humble images (AMD64/x86)
   ros2-humble-base-amd64:
     needs: changes
@@ -46,8 +58,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/AMD64x86/humble', image_name: 'humble', image_version: 'latest' }
-          - { build_context: './ROS2/AMD64x86/humble_gpu', image_name: 'humble_gpu', image_version: 'latest' }
+          - { build_context: './ROS2/AMD64x86/humble', image_name: 'humble', image_version: "${{ needs.changes.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/humble_gpu', image_name: 'humble_gpu', image_version: "${{ needs.changes.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -63,7 +75,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: 'latest' }
+          - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: "${{ needs.changes.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -79,7 +91,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: 'latest' }
+          - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: "${{ needs.changes.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -95,8 +107,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/AMD64x86/wheelchair2_base', image_name: 'wheelchair2_base', image_version: 'latest' }
-          - { build_context: './ROS2/AMD64x86/wheelchair2_base_gazebo', image_name: 'wheelchair2_base_gazebo', image_version: 'latest' }
+          - { build_context: './ROS2/AMD64x86/wheelchair2_base', image_name: 'wheelchair2_base', image_version: "${{ needs.changes.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/wheelchair2_base_gazebo', image_name: 'wheelchair2_base_gazebo', image_version: "${{ needs.changes.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -112,7 +124,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: 'latest' }
+          - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: "${{ needs.changes.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}

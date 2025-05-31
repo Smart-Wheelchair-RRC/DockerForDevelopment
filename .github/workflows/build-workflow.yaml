@@ -30,6 +30,9 @@ jobs:
       packages: write
 
     steps:
+      - name: Set up GitHub Actions environment
+        run: echo "GITHUB_ACTOR_LOWER=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -48,6 +51,6 @@ jobs:
         with:
           context: ${{ inputs.build_context }}
           push: true
-          tags: ghcr.io/wheelchair2/${{ inputs.image_name }}:${{ inputs.image_version }}
+          tags: ghcr.io/${{ env.GITHUB_ACTOR_LOWER }}/${{ inputs.image_name }}:${{ inputs.image_version }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
