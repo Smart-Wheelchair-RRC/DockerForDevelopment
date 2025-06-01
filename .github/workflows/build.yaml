@@ -18,6 +18,11 @@ jobs:
       workflow: ${{ steps.filter.outputs.workflow }}
       any_changed: ${{ steps.filter.outputs.any_changed }}
       image_version: ${{ steps.set_version.outputs.image_version }}
+    permissions:
+      packages: write
+      contents: read
+      pull-requests: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,6 +60,9 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Humble Base Images (AMD64)
+    permissions:
+      packages: write
+      contents: read
     strategy:
       matrix:
         config:
@@ -72,6 +80,9 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.ros2-jetson == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Humble Jetson Base
+    permissions:
+      packages: write
+      contents: read
     strategy:
       matrix:
         config:
@@ -88,6 +99,9 @@ jobs:
     needs: [changes, ros2-humble-base-amd64]
     if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Humble Harmonic
+    permissions:
+      packages: write
+      contents: read
     strategy:
       matrix:
         config:
@@ -104,6 +118,9 @@ jobs:
     needs: [changes, ros2-humble-base-amd64, ros2-humble-harmonic]
     if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Wheelchair2 Base Images
+    permissions:
+      packages: write
+      contents: read
     strategy:
       matrix:
         config:
@@ -121,6 +138,9 @@ jobs:
     needs: [changes, ros2-humble-jetson]
     if: ${{ needs.changes.outputs.ros2-jetson == 'true' || needs.changes.outputs.workflow == 'true' }}
     name: ROS2 Wheelchair2 Jetson Images
+    permissions:
+      packages: write
+      contents: read
     strategy:
       matrix:
         config:
