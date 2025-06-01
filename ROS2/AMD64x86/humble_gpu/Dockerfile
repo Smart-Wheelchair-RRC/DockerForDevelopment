@@ -57,7 +57,7 @@ USER $USERNAME
 ENV ROS_DISTRO=$ROS_DISTRO
 
 # install ros2 packages
-RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+RUN sudo apt-get update --allow-releaseinfo-change && sudo apt-get install -y --no-install-recommends \
     ros-$ROS_DISTRO-desktop \
     && sudo rm -rf /var/lib/apt/lists/*
 
@@ -67,7 +67,7 @@ COPY ./ros_entrypoint.sh /
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
 # install bootstrap tools
-RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
+RUN sudo apt-get update --allow-releaseinfo-change&& sudo apt-get install --no-install-recommends -y \
     build-essential \
     git \
     bash-completion \
