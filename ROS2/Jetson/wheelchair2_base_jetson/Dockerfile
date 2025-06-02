@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:testing
+FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:test
 
 ARG USERNAME=container_user
 
