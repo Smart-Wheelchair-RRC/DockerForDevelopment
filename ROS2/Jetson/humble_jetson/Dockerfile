@@ -37,9 +37,14 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
 # info: https://help.ubuntu.com/community/Repositories/Ubuntu
 RUN add-apt-repository universe
 
-# setup sources.list for ROS2
-RUN     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
-    &&  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
+# Setup the ROS 2 apt repository
+# Guidance source 1: https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html#setup-sources
+# Guidance source 2: https://discourse.ros.org/t/ros-signing-key-migration-guide/43937
+# Guidance source 3: https://github.com/osrf/docker_images/commit/13a4d90a845353eb95146b9c016b8fd933e272e0
+RUN     apt-get update --allow-releaseinfo-change && apt-get install curl -y \
+    &&  export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') \
+    &&  curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" \
+    &&  apt-get install /tmp/ros2-apt-source.deb
 
 # setup environment
 ENV LANG=C.UTF-8

@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:latest
+FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:testing
 
 # Add the following labels
 LABEL org.opencontainers.image.description="Wheelchair2"

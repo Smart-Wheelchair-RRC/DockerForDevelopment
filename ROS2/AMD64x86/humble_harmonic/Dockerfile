@@ -1,5 +1,4 @@
-
-FROM ghcr.io/smart-wheelchair-rrc/humble_gpu:latest
+FROM ghcr.io/smart-wheelchair-rrc/humble_gpu:testing
 
 # Environment setup
 ENV GZ_VERSION=harmonic
