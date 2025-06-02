@@ -41,7 +41,7 @@ RUN add-apt-repository universe
 # Guidance source 1: https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html#setup-sources
 # Guidance source 2: https://discourse.ros.org/t/ros-signing-key-migration-guide/43937
 # Guidance source 3: https://github.com/osrf/docker_images/commit/13a4d90a845353eb95146b9c016b8fd933e272e0
-RUN     apt update && apt install curl -y \
+RUN     apt update --allow-releaseinfo-change && apt install curl -y \
     &&  export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}' \") \
     &&  curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" \
     &&  install /tmp/ros2-apt-source.deb
