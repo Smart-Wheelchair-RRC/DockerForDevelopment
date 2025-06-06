@@ -4,7 +4,7 @@ FROM ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.0
 ENV GZ_VERSION=harmonic
 
 # install necessary tools
-RUN sudo apt-get update --allow-releaseinfo-change && sudo apt-get install --no-install-recommends -y \
+RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
     curl \
     lsb-release \
     wget \
@@ -18,4 +18,4 @@ RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/
     && sudo apt-get install -y gz-harmonic \
     && sudo rm -rf /var/lib/apt/lists/*
 
-RUN sudo apt-get update --allow-releaseinfo-change && sudo apt-get install -y ros-$ROS_DISTRO-ros-gzharmonic
+RUN sudo apt-get update && sudo apt-get install -y ros-$ROS_DISTRO-ros-gzharmonic

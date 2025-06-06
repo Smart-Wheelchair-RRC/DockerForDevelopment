@@ -13,7 +13,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 SHELL ["/bin/bash", "-c"]
 
 # Install Basic deps
-RUN sudo apt-get update --allow-releaseinfo-change \
+RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends\
     libssl-dev \
     libusb-1.0-0-dev \
