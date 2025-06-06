@@ -30,21 +30,16 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     dirmngr \
     gnupg2 \
     curl \
-    software-properties-common \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# enable the universe repository
-# info: https://help.ubuntu.com/community/Repositories/Ubuntu
-RUN add-apt-repository universe
-
-# Setup the ROS 2 apt repository
-# Guidance source 1: https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html#setup-sources
-# Guidance source 2: https://discourse.ros.org/t/ros-signing-key-migration-guide/43937
-# Guidance source 3: https://github.com/osrf/docker_images/commit/13a4d90a845353eb95146b9c016b8fd933e272e0
-RUN     apt-get update --allow-releaseinfo-change && apt-get install curl -y \
-    &&  export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') \
-    &&  curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" \
-    &&  apt-get install /tmp/ros2-apt-source.deb
+# Setup ROS Apt sources
+RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.1.0/ros2-apt-source_1.1.0.jammy_all.deb \
+    && echo "1600cb8cc28258a39bffc1736a75bcbf52d1f2db371a4d020c1b187d2a5a083b /tmp/ros2-apt-source.deb" | sha256sum --strict --check \
+    && apt-get update \
+    && apt-get install /tmp/ros2-apt-source.deb \
+    && rm -f /tmp/ros2-apt-source.deb \
+    && rm -rf /var/lib/apt/lists/*
 
 # setup environment
 ENV LANG=C.UTF-8
