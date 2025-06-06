@@ -47,12 +47,8 @@ jobs:
       - name: Set image version
         id: set_version
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "image_version=test" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/v* ]]; then
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          else
-            echo "image_version=latest" >> $GITHUB_OUTPUT
           fi
 
   # Stage 1: ROS2 base humble images (AMD64/x86)
