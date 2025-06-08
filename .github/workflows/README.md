@@ -132,14 +132,14 @@ ros2-wheelchair-base:
 ```
 
 Let's break this down:
--   **needs**: This job depends on the `changes` job and the `ros2-humble-base-amd64` and `ros2-humble-harmonic` jobs. It will only run if these jobs are successful. This ensures that dependant images are built in the correct order.
--   **if**: This condition checks if there are changes in the `ROS2/AMD64x86/` directory or if there are changes in the workflows. If either condition is true, this job will run.
--   **permissions**: This job requires write access to packages (to push the built images) and read access to contents (to read the repository).
--   **strategy**: This defines a matrix strategy for the job. In this case, we have two configurations:
+-   `needs`: This job depends on the `changes` job and the `ros2-humble-base-amd64` and `ros2-humble-harmonic` jobs. It will only run if these jobs are successful. This ensures that dependant images are built in the correct order.
+-   `if`: This condition checks if there are changes in the `ROS2/AMD64x86/` directory or if there are changes in the workflows. If either condition is true, this job will run.
+-   `permissions`: This job requires write access to packages (to push the built images) and read access to contents (to read the repository).
+-   `strategy`: This defines a matrix strategy for the job. In this case, we have two configurations:
     -   `wheelchair2_base`: The base image for the wheelchair2 project.
     -   `wheelchair2_base_gazebo`: The base image for the wheelchair2 project with Gazebo support.
--   **uses**: This specifies that the job will use the reusable workflow defined in [build-workflow.yaml](/.github/workflows/build-workflow.yaml).
--   **with**: This passes the necessary parameters to the reusable workflow, including the build context, image name, image version, and the runner to use.
+-   `uses`: This specifies that the job will use the reusable workflow defined in [build-workflow.yaml](/.github/workflows/build-workflow.yaml).
+-   `with`: This passes the necessary parameters to the reusable workflow, including the build context, image name, image version, and the runner to use.
 
 Note the matrix system:
 ```yaml

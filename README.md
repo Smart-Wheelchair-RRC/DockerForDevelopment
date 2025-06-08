@@ -9,7 +9,8 @@ This documentation is split into four parts:
 - [How to use an image](#pulling-an-image)
 - [How to build an image](#building-an-image)
 
-This repository uses GitHub Actions for CI/CD. Further documentation on how we have implemented this is available in the [CI/CD documentation](/.github/workflows/README.md).
+> [!NOTE]
+> This repository uses GitHub Actions for CI/CD. Further documentation on how we have implemented this is available in the [CI/CD documentation](/.github/workflows/README.md).
 
 ## List of ROS2 Features and Images
 
