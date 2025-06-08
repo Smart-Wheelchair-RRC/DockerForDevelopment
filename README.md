@@ -122,6 +122,20 @@ Since this repository uses CI/CD builds, certain considerations must be taken in
     docker build -t ghcr.io/smart-wheelchair-rrc/humble:v3.0 -f ROS2/AMD64x86/humble/Dockerfile ROS2/AMD64x86/humble
     ```
 
+1.  **Pushing the image**
+
+    After building the image, you can push it to the GitHub Container Registry using the following command:
+
+    ```bash
+    docker push ghcr.io/smart-wheelchair-rrc/<image_name>:<tag>
+    ```
+
+    For example, to push the `humble` image:
+
+    ```bash
+    docker push ghcr.io/smart-wheelchair-rrc/humble:v3.0
+    ```
+
 > [!IMPORTANT]
 > Avoid using the `latest` tag.
 
