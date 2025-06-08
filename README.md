@@ -9,8 +9,7 @@ This documentation is split into four parts:
 - [How to use an image](#pulling-an-image)
 - [How to build an image](#building-an-image)
 
-> [!NOTE]
-> This repository uses GitHub Actions for CI/CD. Further documentation on this is available in the [CI/CD documentation](/.github/workflows/README.md).
+This repository uses GitHub Actions for CI/CD. Further documentation on how we have implemented this is available in the [CI/CD documentation](/.github/workflows/README.md).
 
 ## List of ROS2 Features and Images
 
@@ -84,8 +83,8 @@ Replace `<image_name>` with the desired image name (e.g., `humble`, `wheelchair2
 docker pull ghcr.io/smart-wheelchair-rrc/humble:v3.0
 ```
 
-> [!NOTE]
-> PLease be mindful of the tag you are pulling. The `latest` tag is not used in this repository, so you need to provide a specific version tag (e.g., `v3.0`).
+> [!IMPORTANT]
+> Please be mindful of the tag you are pulling. The `latest` tag is not used in this repository, so you need to provide a specific version tag (e.g., `v3.0`).
 
 ## Building an image
 Since this repository uses CI/CD builds, certain considerations must be taken into account when building images:
@@ -108,9 +107,6 @@ Since this repository uses CI/CD builds, certain considerations must be taken in
 
     Once a commit has been tagged and pushed to the repository, the CI/CD system will automatically build the image and push it to the GitHub Container Registry. It will attempt to do this regardless of the branch you are on.
 
-    > [!IMPORTANT]
-    > Avoid using the `latest` tag.
-
 1.  **Building locally**
 
     If you want to build locally, you're free to use any tags you like, however you should be mindful of dependant images and their tags. You can build an image using the following command:
@@ -125,9 +121,12 @@ Since this repository uses CI/CD builds, certain considerations must be taken in
     docker build -t ghcr.io/smart-wheelchair-rrc/humble:v3.0 -f ROS2/AMD64x86/humble/Dockerfile ROS2/AMD64x86/humble
     ```
 
+> [!IMPORTANT]
+> Avoid using the `latest` tag.
+
 ### Explanation of the `docker build` command
 
-The `docker build` command is used to create a Docker image from a Dockerfile. Here's a breakdown of the command and its arguments:
+The [`docker build` command](https://docs.docker.com/reference/cli/docker/buildx/build/) is used to create a Docker image from a Dockerfile. Here's a breakdown of the command and its arguments:
 
 ```bash
 docker build -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
@@ -138,6 +137,16 @@ docker build -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dock
 | `-t` | `ghcr.io/smart-wheelchair-rrc/<image_name>:<tag>` | `ghcr.io/smart-wheelchair-rrc/humble:v3.0` | Tags the image with the specified name and version tag. |
 | `-f` | `<path/to/Dockerfile>` | `ROS2/AMD64x86/humble/Dockerfile` | Specifies the path to the Dockerfile to use for building the image. |
 |  | `<build_context>` | `ROS2/AMD64x86/humble` | The build context, which is the directory containing the Dockerfile and any other files needed for the build. |
+
+### Recommendations for tagging images
+Suggestions for filling in the SemVer version tag.
+
+Let us assume that the latest image before you start working is `v3.14`. Therefore, the next image you target to release will be `v3.15`.
+
+However, the CI/CD workflow requires that you tag every commit where you want to build an image AND GitHub requires commit tags to be unique. If you wish to use the online builds to test your changes, you can use the `dev*` tags. For example, you can tag your commit as `dev3.15.0` or `dev3.15.1`. This way, you can test your changes without affecting the main versioning scheme.
+
+When you are ready to release the next version, (most likely a merge commit), you can tag it as `v3.15.0` or `v3.15`. This will trigger the CI/CD workflow to build the image with the correct version tag.
+
 
 
 ## Acknowledgements

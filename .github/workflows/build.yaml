@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*'
-      - 'rc*'
+      - 'dev*'
       - 'latest'
 
 jobs:
@@ -15,7 +15,6 @@ jobs:
       ros2-amd64: ${{ steps.filter.outputs.ros2-amd64 }}
       ros2-jetson: ${{ steps.filter.outputs.ros2-jetson }}
       workflow: ${{ steps.filter.outputs.workflow }}
-      any_changed: ${{ steps.filter.outputs.any_changed }}
       image_version: ${{ steps.set_version.outputs.image_version }}
     permissions:
       packages: write
@@ -37,18 +36,13 @@ jobs:
               - 'ROS2/AMD64x86/**'
             workflow:
               - '.github/workflows/**'
-            any_changed:
-              - 'ROS2/**'
-              - '.github/workflows/**'
-#           ros2-jetson:
-#             - 'ROS2/Jetson/**'
+            ros2-jetson:
+              - 'ROS2/Jetson/**'
 
       - name: Set image version
         id: set_version
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          fi
+          echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
   # Stage 1: ROS2 base humble images (AMD64/x86)
   ros2-humble-base-amd64:
