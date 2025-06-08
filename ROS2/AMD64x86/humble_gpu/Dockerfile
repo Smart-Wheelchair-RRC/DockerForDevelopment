@@ -67,7 +67,7 @@ COPY ./ros_entrypoint.sh /
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
 # install bootstrap tools
-RUN sudo apt-get update --allow-releaseinfo-change&& sudo apt-get install --no-install-recommends -y \
+RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
     build-essential \
     git \
     bash-completion \
