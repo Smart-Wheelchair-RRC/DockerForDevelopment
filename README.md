@@ -1,85 +1,144 @@
-# Docker For ROS Development
-Docker images for Easy ROS1 and ROS2 development with the wheelchair.
+# Docker for ROS Development
 
-## Available Images
+This repository provides ROS1 and ROS2 Docker images for easy development with the wheelchair.
 
-The following Docker images are available:
+This documentation is split into four parts:
 
--   `humble`:  Based on `ubuntu:jammy`, this image includes ROS 2 Humble Hawksbill packages and a non-root user for enhanced security.
--   `humble_gpu`:  Based on `nvidia/cuda:12.2.2-devel-ubuntu22.04`, this image includes ROS 2 Humble Hawksbill packages, CUDA, CuDNN and a non-root user for enhanced security.
--   `humble_harmonic`:  Extends the `humble_gpu` image and includes Gazebo Harmonic, which works better with `humble-gz_sim` related deps. Hence this is **Recommended** over `fortress`.
--   `wheelchair2_base`:  Extends the `humble` image and includes Realsense and Livox SDK's
--   `humble_jetson`:  Based on `ubuntu:jammy for ARM64`, this image includes ROS 2 Humble Hawksbill packages and a non-root user for enhanced security.
--   `wheelchair2_base_jetson`:  Extends the `humble_jetson` image and includes Realsense and Livox SDK's 
--   `wheelchair2_base_gazebo`: Extends `humble_harmonic` image and includes `ros2_control`, `RGLGazeboPlugin`, `Nvidia Optix` for gz-sim and Realsense and Livox SDK's for real-world runs.
+- [List of features and images](#list-of-ros2-features-and-images)
+- [Instructions for everyone (GHCR authentication)](#authenticating-to-github-container-registry)
+- [How to use an image](#pulling-an-image)
+- [How to build an image](#building-an-image)
 
-**Important Note:** The `ROS1` images are currently **under development** and have not been heavily tested.  They may be unstable or contain significant bugs.
- 
-## Usage
+> [!NOTE]
+> This repository uses GitHub Actions for CI/CD. Further documentation on this is available in the [CI/CD documentation](/.github/workflows/README.md).
 
-### 1. Pulling an Image
+## List of ROS2 Features and Images
+
+| Image name | Base image | Intended target | Features |
+| --- | --- | --- | --- |
+| `humble` | [`ubuntu:jammy`](https://hub.docker.com/_/ubuntu) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - non-root user |
+| `humble_gpu` | [`nvidia/cuda:12.2.2-devel-ubuntu22.04`](https://hub.docker.com/r/nvidia/cuda) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - CUDA <br> - CuDNN <br> - non-root user |
+| `humble_harmonic` | `humble_gpu` | x86\_64 laptop | - Gazebo Harmonic (recommended over fortress) |
+| `wheelchair2_base` | `humble` | x86\_64 laptop | - Realsense SDK <br> - Livox SDK |
+| `wheelchair_2_base_gazebo` | `humble_harmonic` | x86\_64 laptop | - ros2\_control <br> - RGLGazeboPlugin <br> - Nvidia Optix for gz-sim <br> - Realsense SDK <br> - Livox SDK |
+| `humble_jetson` | [`nvcr.io/nvidia/l4t-jetpack`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack) | Jetson (ARM64) | - ROS2 Humble Hawksbill packages <br> - non-root user |
+| `wheelchair2_base_jetson` | `humble_jetson` | Jetson (ARM64) | - Realsense SDK <br> - Livox SDK |
+
+> [!CAUTION]
+> The ROS1 images are currently **under development** and have not been heavily tested. They may be unstable or contain significant bugs.
+
+## Authenticating to GitHub Container Registry
+To pull or push images to the GitHub Container Registry, you need to authenticate using a personal access token (PAT) with the `write:packages` and `repo` scopes.
+
+Brief steps are given below, but you can find more detailed instructions in the [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic).
+1.  Create a personal access token (PAT) with the required scopes.
+2.  Log in to the GitHub Container Registry using the following command:
+
+    ```bash
+    echo <YOUR_PAT> | docker login ghcr.io -u <YOUR_GITHUB_USERNAME> --password-stdin
+    ```
+
+3.  Verify that you are logged in by running:
+
+    ```bash
+    docker info
+    ```
+
+### Debugging
+If docker throws the error even after restarting the Docker daemon:
+
+```txt
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+```
+
+You can try the following steps:
+
+1.  Docker networking requires IP forwarding. Check if it's enabled:
+    ```bash
+    sysctl net.ipv4.ip_forward
+    ```
+
+1.  If it returns `0`, enable it with:
+
+    ```bash
+    sudo sysctl -w net.ipv4.ip_forward=1
+    ```
+
+1.  Then restart the Docker daemon:
+
+    ```bash
+    sudo systemctl restart docker
+    ```
+
+## Pulling an image
 
 To download a pre-built image from GitHub Container Registry (ghcr.io), use the following command:
 
 ```bash
-docker pull ghcr.io/smart-wheelchair-rrc/<image_name>:latest
+docker pull ghcr.io/smart-wheelchair-rrc/<image_name>:<tag>
 ```
 
 Replace `<image_name>` with the desired image name (e.g., `humble`, `wheelchair2_base`). For example:
 
 ```bash
-docker pull ghcr.io/smart-wheelchair-rrc/humble:latest
+docker pull ghcr.io/smart-wheelchair-rrc/humble:v3.0
 ```
 
-### 2. Building an Image (Optional)
+> [!NOTE]
+> PLease be mindful of the tag you are pulling. The `latest` tag is not used in this repository, so you need to provide a specific version tag (e.g., `v3.0`).
 
-If you prefer to build the image locally from the Dockerfile, clone this repository and navigate to the root directory.  Then, use the following command:
+## Building an image
+Since this repository uses CI/CD builds, certain considerations must be taken into account when building images:
+
+1.  **Dependant images**
+
+    Certain images depend on other images. For example, `wheelchair2_base_gazebo` depends on `humble_harmonic`. If you want to build `wheelchair2_base_gazebo`, you need to build `humble_harmonic` first.
+
+    In the dependant image's Dockerfile, you can specify the base image as follows:
+
+    ```dockerfile
+    FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:v3.0
+    ```
+
+    Again, please be mindful of the tag you are using. If you update a base image, and you want the changes to reflect in the dependant image, you need to rebuild the dependant image **with the correct tag of the base image**.
+
+1.  **Online builds must be tagged**
+
+    The CI/CD system **will not initiate builds** if the image is not tagged. Moreover, your tag must follow the [SemVer](https://semver.org/spec/v2.0.0.html) format. For example: `v3`, `v3.0`, `v3.1.0`. So your tag names must start with `v` and be followed by a version number.
+
+    Once a commit has been tagged and pushed to the repository, the CI/CD system will automatically build the image and push it to the GitHub Container Registry. It will attempt to do this regardless of the branch you are on.
+
+    > [!IMPORTANT]
+    > Avoid using the `latest` tag.
+
+1.  **Building locally**
+
+    If you want to build locally, you're free to use any tags you like, however you should be mindful of dependant images and their tags. You can build an image using the following command:
+
+    ```bash
+    docker build -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
+    ```
+
+    Replace `<image_name>` with the desired image name, `<tag>` with the version tag, and `<build_context>` with the directory containing the Dockerfile. For example, to build the `humble` image:
+
+    ```bash
+    docker build -t ghcr.io/smart-wheelchair-rrc/humble:v3.0 -f ROS2/AMD64x86/humble/Dockerfile ROS2/AMD64x86/humble
+    ```
+
+### Explanation of the `docker build` command
+
+The `docker build` command is used to create a Docker image from a Dockerfile. Here's a breakdown of the command and its arguments:
 
 ```bash
-docker build -t ghcr.io/smart-wheelchair-rrc/<image_name> -f <image_name>/Dockerfile <image_name>
+docker build -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
 ```
 
-Again, replace `<image_name>` with the appropriate image name. For example, to build the `humble` image:
+| Argument | Value | Example | Description |
+| --- | --- | --- | --- |
+| `-t` | `ghcr.io/smart-wheelchair-rrc/<image_name>:<tag>` | `ghcr.io/smart-wheelchair-rrc/humble:v3.0` | Tags the image with the specified name and version tag. |
+| `-f` | `<path/to/Dockerfile>` | `ROS2/AMD64x86/humble/Dockerfile` | Specifies the path to the Dockerfile to use for building the image. |
+|  | `<build_context>` | `ROS2/AMD64x86/humble` | The build context, which is the directory containing the Dockerfile and any other files needed for the build. |
 
-```bash
-docker build -t ghcr.io/smart-wheelchair-rrc/humble -f humble-garden/Dockerfile humble
-```
-
-**Explanation of the `docker build` command:**
-
-*   `docker build`: The command to build a Docker image.
-*   `-t ghcr.io/smart-wheelchair-rrc/<image_name>`:  Tags the image with the specified name and registry path.
-*   `-f <image_name>/Dockerfile`: Specifies the path to the Dockerfile to use for building the image.
-*   `<image_name>`:  The build context, which is the directory containing the Dockerfile and any other files needed for the build.
-
-### 3. Pushing an Image (For Contributors)
-
-If you have made changes to the Dockerfile and want to contribute by pushing the updated image to the registry, use the following command:
-
-```bash
-docker push ghcr.io/smart-wheelchair-rrc/<image_name>:latest
-```
-
-**Note:**  You need to be authenticated with `ghcr.io` and have the appropriate permissions to push images to the `smart-wheelchair-rrc` repository.
-
-### Debugging 
-
->The docker throws " Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? " error, even after restarting docker, do the following:
-
-- Docker networking requires IP forwarding. Check if it's enabled:
-    ```bash
-    sysctl net.ipv4.ip_forward
-    ```
-- If it returns 0, enable it with:
-    ```bash
-    sudo sysctl -w net.ipv4.ip_forward=1
-    ```
-- Then restart Docker:
-    ```bash
-    sudo systemctl restart docker
-    ```
 
 ## Acknowledgements
-
 This work is inspired by the work of [soham2560](https://github.com/soham2560/DockerForROS2Development).
-
