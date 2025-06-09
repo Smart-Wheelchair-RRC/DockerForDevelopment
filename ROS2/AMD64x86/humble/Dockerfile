@@ -2,7 +2,7 @@ FROM ubuntu:jammy
 
 # basic args
 ARG ROS_DISTRO=humble
-ARG USERNAME=wheelchair2
+ARG USERNAME=container_user
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
