@@ -1,4 +1,6 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:v3.0
+FROM ghcr.io/smart-wheelchair-rrc/humble:v3.1
+
+ARG USERNAME=container_user
 
 # Add the following labels
 LABEL org.opencontainers.image.description="Wheelchair2"
