@@ -33,9 +33,9 @@ This is a high-level understanding of the workflow described in [build.yaml](/.g
 
 1.  If changes were detected, the workflow proceeds to build the images. If any GitHub Action changes were detected, everything is rebuilt; otherwise only the changed images are rebuilt.
 
-1.  The remainder of the build is split into five sections, which run in three steps (some run in parallel):
+1.  The remainder of the build is split into five sections, which run in three steps (some sections run in parallel):
 
-    | Step | Sections |
+    | Step | Sections that run in parallel |
     | --- | --- |
     | 1 | - ROS2 base humble images (AMD64/x86) <br> - ROS2 base humble images (Jetson/ARM) |
     | 2 | - ROS2 humble_harmonic (AMD64/x86) |
@@ -101,9 +101,7 @@ This simply involves obtaining the Git tag and setting it as an environment vari
 - name: Set image version
   id: set_version
   run: |
-    if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-      echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-    fi
+    echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 ```
 
 ### Building the images
