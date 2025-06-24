@@ -35,7 +35,7 @@ RUN sudo apt-get update \
 
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME
-RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
+RUN git clone --depth=1 --progress --verbose --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
 WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
@@ -46,7 +46,7 @@ RUN mkdir build && cd build \
 
 # Build and install Livox-SDK2
 WORKDIR /home/$USERNAME
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+RUN git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
@@ -63,7 +63,7 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/$USERNAME/gz_ros2_control_ws/src
-RUN git clone https://github.com/ros-controls/gz_ros2_control -b $ROS_DISTRO . \
+RUN git clone --depth=1 --progress --verbose https://github.com/ros-controls/gz_ros2_control -b $ROS_DISTRO . \
     && export GZ_VERSION=harmonic \
     && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y --skip-keys="ros_gz_bridge ros_gz_sim" 
 
@@ -77,7 +77,7 @@ COPY NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/ /opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-l
 ENV OptiX_INSTALL_DIR=/opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
 
 WORKDIR /home/$USERNAME
-RUN git clone https://github.com/RobotecAI/RGLGazeboPlugin.git \
+RUN git clone --depth=1 --progress --verbose https://github.com/RobotecAI/RGLGazeboPlugin.git \
     && cd RGLGazeboPlugin \
     && mkdir build && cd build \
     && cmake .. && sudo make -j && sudo make install
