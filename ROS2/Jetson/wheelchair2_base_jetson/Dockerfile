@@ -53,15 +53,26 @@ RUN cd Livox-SDK2 \
     && cmake .. && make -j \
     && sudo make install
 
+# Build and install kiss-icp
+WORKDIR /home/$USERNAME
+RUN git clone https://github.com/PRBonn/kiss-icp.git
+RUN cd kiss-icp \
+    && make editable
+
+# Install ROS2 packages
 COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
 
+# Install Python packages
 COPY pythonPkgs.list /tmp/pythonPkgs.list
 RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
+
+# open3d installs an uncompatible numpy version, so we need to install a compatible version AFTER open3d
+RUN pip3 install numpy==1.24
 
 RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends\
