@@ -70,14 +70,14 @@ You can try the following steps:
     sudo systemctl restart docker
     ```
 
-1.  When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth 1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
+1.  When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
 
     Moreover, Git usually doesn't print logs to stdout when run in a container, but these are very useful for debugging. We enable these using the `--progress --verbose` flags.
 
     Therefore, a complete `git clone` command would look like this:
 
     ```bash
-    git clone --depth 1 --progress --verbose <repository_url>
+    git clone --depth=1 --progress --verbose <repository_url>
     ```
 
     As an example:
