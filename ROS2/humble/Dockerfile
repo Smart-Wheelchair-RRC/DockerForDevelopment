@@ -1,4 +1,5 @@
-FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
+ARG BASE_IMAGE=ubuntu:jammy
+FROM $BASE_IMAGE
 
 # basic args
 ARG ROS_DISTRO=humble
