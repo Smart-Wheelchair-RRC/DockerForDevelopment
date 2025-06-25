@@ -77,5 +77,7 @@ RUN sudo apt-get update \
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
 
+COPY .tmux.conf /home/wheelchair2/.tmux.conf
+
 # Environment variable for map folder
 ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
