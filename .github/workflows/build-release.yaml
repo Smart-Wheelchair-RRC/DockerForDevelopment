@@ -4,9 +4,9 @@ on:
   push:
     tags:
       - 'v*'
-      - 'dev*'
       - 'latest'
-
+    branches:
+      - master
 jobs:
   # Detect file changes
   changes:
