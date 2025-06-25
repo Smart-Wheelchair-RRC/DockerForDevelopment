@@ -20,7 +20,7 @@
 ## Overview of the main workflow
 This is a high-level understanding of the workflow described in [build.yaml](/.github/workflows/build.yaml).
 
-1.  The workflow is triggered when a tag starting with `v` is pushed to the repository.
+1.  The workflow is triggered when a tag starting with `v` (or `dev`) is pushed to the repository.
 
 1.  Firstly, the workflow checks out the code from the repository and looks for changes. At a time, a change may be present in a full directory only. We do not test for individual Dockerfiles because certain images depend on others, and we want to build them in the correct order.
 
@@ -29,7 +29,7 @@ This is a high-level understanding of the workflow described in [build.yaml](/.g
     -   `ROS2/Jetson`: edge-computing images for NVIDIA Jetson architecture (once implemented)
     -   `.github/workflows/`: GitHub Actions workflows
 
-1.  Next, the workflow looks for the Git tag. If it finds a tag that starts with `v`, records this to a variable, so that it may be used later in the workflow.
+1.  Next, the workflow looks for the Git tag. If it finds a tag that starts with `v`/`dev`, records this to a variable, so that it may be used later in the workflow.
 
 1.  If changes were detected, the workflow proceeds to build the images. If any GitHub Action changes were detected, everything is rebuilt; otherwise only the changed images are rebuilt.
 
