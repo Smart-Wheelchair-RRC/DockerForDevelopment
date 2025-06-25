@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:latest
+FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:v3.0
 
 ARG USERNAME=container_user
 
@@ -35,7 +35,7 @@ RUN sudo apt-get update \
 
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME
-RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
+RUN git clone --depth=1 --progress --verbose --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
 WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
@@ -46,7 +46,7 @@ RUN mkdir build && cd build \
 
 # Build and install Livox-SDK2
 WORKDIR /home/$USERNAME
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+RUN git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
@@ -76,6 +76,8 @@ RUN sudo apt-get update \
 # Set TERM and colorful prompt in bashrc
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
+
+COPY .tmux.conf /home/wheelchair2/.tmux.conf
 
 # Environment variable for map folder
 ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps

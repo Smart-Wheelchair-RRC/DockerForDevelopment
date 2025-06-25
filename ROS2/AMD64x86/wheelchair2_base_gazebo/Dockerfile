@@ -1,4 +1,6 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:latest
+FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:v3.1
+
+ARG USERNAME=container_user
 
 # Add the following labels
 LABEL org.opencontainers.image.description="Wheelchair2"
@@ -32,9 +34,9 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Build and install Realsense-SDK
-WORKDIR /home/wheelchair2
-RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
-WORKDIR /home/wheelchair2/librealsense
+WORKDIR /home/$USERNAME
+RUN git clone --depth=1 --progress --verbose --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
+WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
@@ -43,8 +45,8 @@ RUN mkdir build && cd build \
     && sudo make uninstall && make clean && make && sudo make install
 
 # Build and install Livox-SDK2
-WORKDIR /home/wheelchair2
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+WORKDIR /home/$USERNAME
+RUN git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
@@ -60,13 +62,13 @@ RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/wheelchair2/gz_ros2_control_ws/src
-RUN git clone https://github.com/ros-controls/gz_ros2_control -b humble . \
+WORKDIR /home/$USERNAME/gz_ros2_control_ws/src
+RUN git clone --depth=1 --progress --verbose https://github.com/ros-controls/gz_ros2_control -b $ROS_DISTRO . \
     && export GZ_VERSION=harmonic \
     && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y --skip-keys="ros_gz_bridge ros_gz_sim" 
 
-WORKDIR /home/wheelchair2/gz_ros2_control_ws
-RUN source /opt/ros/humble/setup.bash \
+WORKDIR /home/$USERNAME/gz_ros2_control_ws
+RUN source /opt/ros/$ROS_DISTRO/setup.bash \
     && colcon build \
     && echo "source ~/gz_ros2_control_ws/install/setup.bash" | sudo tee -a ~/.bashrc > /dev/null  
 
@@ -74,16 +76,16 @@ RUN sudo mkdir -p /opt/nvidia/
 COPY NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/ /opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
 ENV OptiX_INSTALL_DIR=/opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
 
-WORKDIR /home/wheelchair2
-RUN git clone https://github.com/RobotecAI/RGLGazeboPlugin.git \
+WORKDIR /home/$USERNAME
+RUN git clone --depth=1 --progress --verbose https://github.com/RobotecAI/RGLGazeboPlugin.git \
     && cd RGLGazeboPlugin \
     && mkdir build && cd build \
     && cmake .. && sudo make -j && sudo make install
 
 # Environment variable for RGLGazeboPlugin
-ENV GZ_GUI_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLVisualize
-ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/wheelchair2/RGLGazeboPlugin/install/RGLServerPlugin
-ENV RGL_PATTERNS_DIR=/home/wheelchair2/RGLGazeboPlugin/lidar_patterns
+ENV GZ_GUI_PLUGIN_PATH=/home/$USERNAME/RGLGazeboPlugin/install/RGLVisualize
+ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/$USERNAME/RGLGazeboPlugin/install/RGLServerPlugin
+ENV RGL_PATTERNS_DIR=/home/$USERNAME/RGLGazeboPlugin/lidar_patterns
 
 COPY pythonPkgs.list /tmp/pythonPkgs.list
 RUN sudo apt-get update \
@@ -104,5 +106,7 @@ RUN sudo apt-get update \
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
 
+COPY .tmux.conf /home/wheelchair2/.tmux.conf
+
 # Environment variable for map folder
-ENV MAP_DIR=/home/wheelchair2/wheelchair2/src/wheelchair2_navigation/maps
+ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps

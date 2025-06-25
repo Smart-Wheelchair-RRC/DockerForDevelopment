@@ -1,5 +1,6 @@
+FROM ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.1
 
-FROM ghcr.io/smart-wheelchair-rrc/humble_gpu:latest
+ARG USERNAME=container_user
 
 # Environment setup
 ENV GZ_VERSION=harmonic
@@ -19,4 +20,4 @@ RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/
     && sudo apt-get install -y gz-harmonic \
     && sudo rm -rf /var/lib/apt/lists/*
 
-RUN sudo apt-get update && sudo apt-get install -y ros-humble-ros-gzharmonic
+RUN sudo apt-get update && sudo apt-get install -y ros-$ROS_DISTRO-ros-gzharmonic

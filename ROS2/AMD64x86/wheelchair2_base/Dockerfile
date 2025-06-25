@@ -1,4 +1,6 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:latest
+FROM ghcr.io/smart-wheelchair-rrc/humble:v3.1
+
+ARG USERNAME=container_user
 
 # Add the following labels
 LABEL org.opencontainers.image.description="Wheelchair2"
@@ -32,9 +34,9 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Build and install Realsense-SDK
-WORKDIR /home/wheelchair2
-RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
-WORKDIR /home/wheelchair2/librealsense
+WORKDIR /home/$USERNAME
+RUN git clone --depth=1 --progress --verbose --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
+WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
@@ -43,8 +45,8 @@ RUN mkdir build && cd build \
     && sudo make uninstall && make clean && make && sudo make install
 
 # Build and install Livox-SDK2
-WORKDIR /home/wheelchair2
-RUN git clone https://github.com/rtarun1/Livox-SDK2.git 
+WORKDIR /home/$USERNAME
+RUN git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
@@ -75,5 +77,7 @@ RUN sudo apt-get update \
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
 
+COPY .tmux.conf /home/wheelchair2/.tmux.conf
+
 # Environment variable for map folder
-ENV MAP_DIR=/home/wheelchair2/wheelchair2/src/wheelchair2_navigation/maps
+ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
