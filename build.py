@@ -1,5 +1,5 @@
 import sys
-import yaml
+import json
 import argparse
 from pathlib import Path
 import logging
@@ -12,29 +12,26 @@ def setup_logging():
 
 def parse_arguments():
     """Parses command-line arguments."""
-    parser = argparse.ArgumentParser(description="Builds a docker image based on combinations.yaml.")
-    parser.add_argument("target_image_suffix", help="The suffix of the target image name (e.g., humble_gpu).")
+    parser = argparse.ArgumentParser(description="Builds a docker image based on combinations.json.")
+    parser.add_argument("target_image_suffix", help="The key of the target image in combinations.json (e.g., humble_gpu).")
     parser.add_argument("version_tag", help="The version tag for the docker image (e.g., v1.0).")
     return parser.parse_args()
 
 def load_combinations(combinations_file: Path):
-    """Loads and parses the combinations YAML file."""
+    """Loads and parses the combinations JSON file."""
     try:
         with open(combinations_file, 'r') as f:
-            return yaml.safe_load(f)
+            return json.load(f)
     except FileNotFoundError:
         logger.error(f"Combinations file not found: '{combinations_file}'")
         return None
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML file '{combinations_file}': {e}")
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing JSON file '{combinations_file}': {e}")
         return None
 
 def find_target_combination(combinations, target_image_suffix):
-    """Finds the target combination from the list of combinations by suffix."""
-    for combo in combinations:
-        if combo.get('target_image_name', '').endswith(f'/{target_image_suffix}'):
-            return combo
-    return None
+    """Finds the target combination from the combinations dictionary by key."""
+    return combinations.get(target_image_suffix)
 
 def validate_version_tag(version_tag):
     """Validates the version tag."""
@@ -68,7 +65,7 @@ def build_docker_image(target_combo, version_tag):
 
 def main():
     """
-    Builds a docker image based on combinations.yaml.
+    Builds a docker image based on combinations.json.
     """
     setup_logging()
     args = parse_arguments()
@@ -76,7 +73,7 @@ def main():
     if not validate_version_tag(args.version_tag):
         sys.exit(1)
 
-    combinations_file = Path('combinations.yaml')
+    combinations_file = Path('combinations.json')
     combinations = load_combinations(combinations_file)
     if not combinations:
         sys.exit(1)
@@ -84,7 +81,7 @@ def main():
     target_combo = find_target_combination(combinations, args.target_image_suffix)
 
     if not target_combo:
-        logger.error(f"Target image with suffix '{args.target_image_suffix}' not found in '{combinations_file}'.")
+        logger.error(f"Target image with key '{args.target_image_suffix}' not found in '{combinations_file}'.")
         sys.exit(1)
 
     if not build_docker_image(target_combo, args.version_tag):

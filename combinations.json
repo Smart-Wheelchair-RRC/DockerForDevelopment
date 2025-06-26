@@ -1,0 +1,38 @@
+{
+  "humble": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble",
+    "base_image": "ubuntu:jammy",
+    "dockerfile": "ROS2/humble/Dockerfile",
+    "docker_build_context": "ROS2/humble"
+  },
+  "humble_gpu": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble_gpu",
+    "base_image": "nvidia/cuda:12.2.2-base-ubuntu22.04",
+    "dockerfile": "ROS2/humble/Dockerfile",
+    "docker_build_context": "ROS2/humble"
+  },
+  "humble_jetson": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble_jetson",
+    "base_image": "nvcr.io/nvidia/l4t-jetpack:r36.2.0",
+    "dockerfile": "ROS2/humble/Dockerfile",
+    "docker_build_context": "ROS2/humble"
+  },
+  "wheelchair2_base": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/wheelchair2_base",
+    "base_image": "ghcr.io/smart-wheelchair-rrc/humble:v3.1",
+    "dockerfile": "ROS2/wheelchair2_base/Dockerfile",
+    "docker_build_context": "ROS2/wheelchair2_base"
+  },
+  "wheelchair2_base_gazebo": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/wheelchair2_base_gazebo",
+    "base_image": "ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.1",
+    "dockerfile": "ROS2/wheelchair2_base_gazebo/Dockerfile",
+    "docker_build_context": "ROS2/wheelchair2_base_gazebo"
+  },
+  "wheelchair2_base_jetson": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/wheelchair2_base_jetson",
+    "base_image": "ghcr.io/smart-wheelchair-rrc/humble_jetson:v3.0",
+    "dockerfile": "ROS2/wheelchair2_base/Dockerfile",
+    "docker_build_context": "ROS2/wheelchair2_base"
+  }
+}
