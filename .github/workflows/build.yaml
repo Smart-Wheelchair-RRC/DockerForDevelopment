@@ -70,7 +70,7 @@ jobs:
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
       target_image_name: ${{ matrix.config.target_image_name }}
-      image_version: ${{ matrix.config.image_version }}
+      image_version: ${{ needs.check-conditions.outputs.image_version }}
       base_image: ${{ matrix.config.base_image }}
       runs_on: ubuntu-latest
 
@@ -89,7 +89,7 @@ jobs:
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
       target_image_name: ${{ matrix.config.target_image_name }}
-      image_version: ${{ matrix.config.image_version }}
+      image_version: ${{ needs.check-conditions.outputs.image_version }}
       base_image: ${{ matrix.config.base_image }}
       runs_on: ubuntu-24.04-arm 
 
@@ -109,7 +109,7 @@ jobs:
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
       target_image_name: ${{ matrix.config.target_image_name }}
-      image_version: ${{ matrix.config.image_version }}
+      image_version: ${{ needs.check-conditions.outputs.image_version }}
       base_image: ${{ matrix.config.base_image }}
       runs_on: ubuntu-latest
 
@@ -128,6 +128,6 @@ jobs:
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
       target_image_name: ${{ matrix.config.target_image_name }}
-      image_version: ${{ matrix.config.image_version }}
+      image_version: ${{ needs.check-conditions.outputs.image_version }}
       base_image: ${{ matrix.config.base_image }}
       runs_on: ubuntu-24.04-arm
