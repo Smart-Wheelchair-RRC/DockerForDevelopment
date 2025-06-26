@@ -50,9 +50,9 @@ jobs:
       - name: Read combinations JSON file
         id: read_combinations
         run: |
-          echo 'COMBINATIONS_JSON<<EOF' >> $GITHUB_OUTPUT
+          echo "COMBINATIONS_JSON<<EOF" >> $GITHUB_OUTPUT
           cat combinations.json >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   # Stage 1: ROS2 base humble images (AMD64/x86)
   ros2-humble-base-amd64:
@@ -64,8 +64,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - ${{ fromJson(needs.check-conditions.outputs.combinations) }}.humble
-          - ${{ fromJson(needs.check-conditions.outputs.combinations) }}.humble_gpu
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).humble }}
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).humble_gpu }}
     uses: ./.github/workflows/build-workflow.yaml
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
@@ -84,7 +84,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - ${{ fromJson(needs.check-conditions.outputs.combinations) }}.humble_jetson
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).humble_jetson }}
     uses: ./.github/workflows/build-workflow.yaml
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
@@ -103,8 +103,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - ${{ fromJson(needs.check-conditions.outputs.combinations) }}.wheelchair2_base
-          - ${{ fromJson(needs.check-conditions.outputs.combinations) }}.wheelchair2_base_gazebo
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).wheelchair2_base }}
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).wheelchair2_base_gazebo }}
     uses: ./.github/workflows/build-workflow.yaml
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
@@ -123,7 +123,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - ${{ fromJson(needs.check-conditions.outputs.combinations) }}.wheelchair2_base_jetson
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).wheelchair2_base_jetson }}
     uses: ./.github/workflows/build-workflow.yaml
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
