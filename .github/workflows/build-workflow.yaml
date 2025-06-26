@@ -3,11 +3,11 @@ name: Build and Push Docker Image
 on:
   workflow_call:
     inputs:
-      build_context:
+      docker_build_context:
         description: 'Path to the build context'
         required: true
         type: string
-      image_name:
+      target_image_name:
         description: 'Name of the Docker image'
         required: true
         type: string
