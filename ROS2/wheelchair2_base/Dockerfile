@@ -1,4 +1,5 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:v3.1
+ARG BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble:v3.1
+FROM $BASE_IMAGE
 
 ARG USERNAME=container_user
 
