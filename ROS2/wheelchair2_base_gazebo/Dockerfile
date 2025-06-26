@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble:v3.1
+ARG BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble_harmonic:v3.1
 FROM $BASE_IMAGE
 
 ARG USERNAME=container_user
@@ -12,25 +12,6 @@ LABEL maintainer="tarun.ramak@gmail.com"
 LABEL org.opencontainers.image.licenses="MIT"
 # handle default shell
 SHELL ["/bin/bash", "-c"]
-
-ENV GZ_VERSION=harmonic
-
-# install necessary tools
-RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
-    curl \
-    lsb-release \
-    wget \
-    gnupg \
-    && sudo rm -rf /var/lib/apt/lists/*
-
-# Install gazebo fortress from osrf
-RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null \
-    && sudo apt-get update \
-    && sudo apt-get install -y gz-harmonic \
-    && sudo rm -rf /var/lib/apt/lists/*
-
-RUN sudo apt-get update && sudo apt-get install -y ros-$ROS_DISTRO-ros-gzharmonic
 
 # Install Basic deps
 RUN sudo apt-get update \

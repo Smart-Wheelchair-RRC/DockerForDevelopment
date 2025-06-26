@@ -11,6 +11,12 @@
     "dockerfile": "ROS2/humble/Dockerfile",
     "docker_build_context": "ROS2/humble"
   },
+  "humble_harmonic": {
+    "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble_harmonic",
+    "base_image": "ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.1",
+    "dockerfile": "ROS2/humble_harmonic/Dockerfile",
+    "docker_build_context": "ROS2/humble_harmonic"
+  },
   "humble_jetson": {
     "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble_jetson",
     "base_image": "nvcr.io/nvidia/l4t-jetpack:r36.2.0",
@@ -25,7 +31,7 @@
   },
   "wheelchair2_base_gazebo": {
     "target_image_name": "ghcr.io/smart-wheelchair-rrc/wheelchair2_base_gazebo",
-    "base_image": "ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.1",
+    "base_image": "ghcr.io/smart-wheelchair-rrc/humble_harmonic:v3.1",
     "dockerfile": "ROS2/wheelchair2_base_gazebo/Dockerfile",
     "docker_build_context": "ROS2/wheelchair2_base_gazebo"
   },

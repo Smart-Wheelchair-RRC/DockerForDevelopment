@@ -91,11 +91,30 @@ jobs:
   #     target_image_name: ${{ matrix.config.target_image_name }}
   #     image_version: ${{ needs.check-conditions.outputs.image_version }}
   #     base_image: ${{ matrix.config.base_image }}
-  #     runs_on: ubuntu-24.04-arm 
+  #     runs_on: ubuntu-24.04-arm
 
-  # Stage 2: ROS2 wheelchair2_base images (AMD64/x86)
-  ros2-wheelchair-base:
+  # Stage 2: ROS2 base humble images with Gazebo Harmonic (AMD64/x86)
+  ros2-humble-base-gazebo-amd64:
     needs: [check-conditions, ros2-humble-base-amd64]
+    name: ROS2 Wheelchair2 Base Images
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      matrix:
+        config:
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).wheelchair2_harmonic }}
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      docker_build_context: ${{ matrix.config.docker_build_context }}
+      target_image_name: ${{ matrix.config.target_image_name }}
+      image_version: ${{ needs.check-conditions.outputs.image_version }}
+      base_image: ${{ matrix.config.base_image }}
+      runs_on: ubuntu-latest
+
+  # Stage 3: ROS2 wheelchair2_base images (AMD64/x86)
+  ros2-wheelchair-base-amd64:
+    needs: [check-conditions, ros2-humble-base-amd64, ros2-humble-base-gazebo-amd64]
     name: ROS2 Wheelchair2 Base Images
     permissions:
       packages: write
@@ -113,7 +132,7 @@ jobs:
       base_image: ${{ matrix.config.base_image }}
       runs_on: ubuntu-latest
 
-  # Stage 2: ROS2 wheelchair2_base_jetson (depends on humble_jetson)
+  # Stage 3: ROS2 wheelchair2_base_jetson (depends on humble_jetson)
   # ros2-wheelchair-jetson:
   #   needs: [check-conditions, ros2-humble-jetson]
   #   name: ROS2 Wheelchair2 Jetson Images
