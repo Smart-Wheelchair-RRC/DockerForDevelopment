@@ -3,8 +3,7 @@
     "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble",
     "base_image": "ubuntu:jammy",
     "dockerfile": "ROS2/humble/Dockerfile",
-    "docker_build_context": "ROS2/humble",
-    "runs_on": "ubuntu-latest"
+    "docker_build_context": "ROS2/humble"
   },
   "humble_gpu": {
     "target_image_name": "ghcr.io/smart-wheelchair-rrc/humble_gpu",
