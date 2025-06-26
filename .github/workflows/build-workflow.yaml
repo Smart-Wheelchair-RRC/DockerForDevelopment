@@ -53,9 +53,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ${{ inputs.build_context }}
+          context: ${{ inputs.docker_build_context }}
           push: true
-          tags: ghcr.io/${{ env.GITHUB_OWNER_LOWER }}/${{ inputs.image_name }}:${{ inputs.image_version }}
+          tags: ${{ inputs.target_image_name }}:${{ inputs.image_version }}
           build-args: |
             BASE_IMAGE=${{ inputs.base_image }}
           labels: |
