@@ -16,6 +16,7 @@ jobs:
     outputs:
       image_version: ${{ steps.set_version.outputs.image_version }}
       combinations: ${{ steps.read_combinations.outputs.COMBINATIONS_JSON }}
+      branches: ${{ steps.branch-check.outputs.branches }}
     
       permissions:
       packages: write
@@ -31,18 +32,14 @@ jobs:
       - name: Check the branch
         id: branch-check
         run: |
-          # find all remote branches containing this commit
-          branches=$(git branch -r --contains $GITHUB_SHA)
-          echo "::set-output name=branches::$branches"
+          # check the current branch name
+          echo "branches=$(git branch --show-current)" >> $GITHUB_OUTPUT
 
       - name: Fail if tag is invalid
         if: |
-          startsWith(github.ref, 'refs/tags/dev') ||
-          ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) &&
-            contains( steps.branch-check.outputs.branches, 'origin/master' ) )
+          startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && (steps.branch-check.outputs.branches == 'origin/master') )
         run: |
-          echo "Tag $GITHUB_REF is not on master. Aborting."
-          exit 1
+          echo "Tag $GITHUB_REF is not on master, but is on branch ${{ steps.branch-check.outputs.branches }}. This workflow only runs on master branch."
 
       - name: Set image version
         id: set_version
