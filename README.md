@@ -18,9 +18,8 @@ This documentation is split into four parts:
 | --- | --- | --- | --- |
 | `humble` | [`ubuntu:jammy`](https://hub.docker.com/_/ubuntu) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - non-root user |
 | `humble_gpu` | [`nvidia/cuda:12.2.2-devel-ubuntu22.04`](https://hub.docker.com/r/nvidia/cuda) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - CUDA <br> - CuDNN <br> - non-root user |
-| `humble_harmonic` | `humble_gpu` | x86\_64 laptop | - Gazebo Harmonic (recommended over fortress) |
 | `wheelchair2_base` | `humble` | x86\_64 laptop | - Realsense SDK <br> - Livox SDK |
-| `wheelchair_2_base_gazebo` | `humble_harmonic` | x86\_64 laptop | - ros2\_control <br> - RGLGazeboPlugin <br> - Nvidia Optix for gz-sim <br> - Realsense SDK <br> - Livox SDK |
+| `wheelchair_2_base_gazebo` | `humble_gpu` | x86\_64 laptop | - ros2\_control <br> - RGLGazeboPlugin <br> - Nvidia Optix for gz-sim <br> - Realsense SDK <br> - Livox SDK <br> - Gazebo Harmonic |
 | `humble_jetson` | [`nvcr.io/nvidia/l4t-jetpack`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack) | Jetson (ARM64) | - ROS2 Humble Hawksbill packages <br> - non-root user |
 | `wheelchair2_base_jetson` | `humble_jetson` | Jetson (ARM64) | - Realsense SDK <br> - Livox SDK |
 
@@ -70,21 +69,22 @@ You can try the following steps:
     sudo systemctl restart docker
     ```
 
-1.  When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
+### Git clones inside the Dockerfile
+When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
 
-    Moreover, Git usually doesn't print logs to stdout when run in a container, but these are very useful for debugging. We enable these using the `--progress --verbose` flags.
+Moreover, Git usually doesn't print logs to stdout when run in a container, but these are very useful for debugging. We enable these using the `--progress --verbose` flags.
 
-    Therefore, a complete `git clone` command would look like this:
+Therefore, a complete `git clone` command would look like this:
 
-    ```bash
-    git clone --depth=1 --progress --verbose <repository_url>
-    ```
+```bash
+git clone --depth=1 --progress --verbose <repository_url>
+```
 
-    As an example:
-    
-    ```bash
-    git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
-    ```
+As an example:
+
+```bash
+git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
+```
 
 ## Pulling an image
 
@@ -108,12 +108,12 @@ Since this repository uses CI/CD builds, certain considerations must be taken in
 
 1.  **Dependant images**
 
-    Certain images depend on other images. For example, `wheelchair2_base_gazebo` depends on `humble_harmonic`. If you want to build `wheelchair2_base_gazebo`, you need to build `humble_harmonic` first.
+    Certain images depend on other images. For example, `wheelchair2_base_gazebo` depends on `humble_gpu`. If you want to build `wheelchair2_base_gazebo`, you need to build `humble_gpu` first.
 
-    In the dependant image's Dockerfile, you can specify the base image as follows:
+    You can specify the dependant image using the `BASE_IMAGE` argument in the Dockerfile. For example, when building `wheelchair2_base_gazebo`, you should specify the base image as follows:
 
-    ```dockerfile
-    FROM ghcr.io/smart-wheelchair-rrc/humble_harmonic:v3.0
+    ```bash
+    --build-arg BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.0
     ```
 
     Again, please be mindful of the tag you are using. If you update a base image, and you want the changes to reflect in the dependant image, you need to rebuild the dependant image **with the correct tag of the base image**.
@@ -129,13 +129,13 @@ Since this repository uses CI/CD builds, certain considerations must be taken in
     If you want to build locally, you're free to use any tags you like, however you should be mindful of dependant images and their tags. You can build an image using the following command:
 
     ```bash
-    docker build -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
+    docker build --build-arg BASE_IMAGE=<base_image>:<tag> -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
     ```
 
     Replace `<image_name>` with the desired image name, `<tag>` with the version tag, and `<build_context>` with the directory containing the Dockerfile. For example, to build the `humble` image:
 
     ```bash
-    docker build -t ghcr.io/smart-wheelchair-rrc/humble:v3.0 -f ROS2/AMD64x86/humble/Dockerfile ROS2/AMD64x86/humble
+    docker build --build-arg BASE_IMAGE=ubuntu:jammy -t ghcr.io/smart-wheelchair-rrc/humble:v3.0 -f ROS2/humble/Dockerfile ROS2/humble
     ```
 
 1.  **Pushing the image**
@@ -155,16 +155,33 @@ Since this repository uses CI/CD builds, certain considerations must be taken in
 > [!IMPORTANT]
 > Avoid using the `latest` tag.
 
+> [!NOTE]
+> For your convenience, a [JSON file](combinations.json) containing with all compatible images and their tags is available in the repository. Additionally, you can use the provided [Python script](build.py) to automatically generate the build command for any image you want to build.
+>
+> ```bash
+> python3 build.py <image_name> <tag>
+> ```
+>
+> Example:
+> ```bash
+> python3 build.py wheelchair2_base_gazebo v3.0
+> ```
+> Outputs:
+> ```bash
+> docker build --build-arg BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.1 -t ghcr.io/smart-wheelchair-rrc/wheelchair2_base_gazebo:v3.0 -f ROS2/wheelchair2_base_gazebo/Dockerfile ROS2/wheelchair2_base_gazebo
+> ```
+
 ### Explanation of the `docker build` command
 
 The [`docker build` command](https://docs.docker.com/reference/cli/docker/buildx/build/) is used to create a Docker image from a Dockerfile. Here's a breakdown of the command and its arguments:
 
 ```bash
-docker build -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
+docker build --build-arg BASE_IMAGE=<base_image>:<tag> -t ghcr.io/smart-wheelchair-rrc/<image_name>:<tag> -f <path/to/Dockerfile> <build_context>
 ```
 
 | Argument | Value | Example | Description |
 | --- | --- | --- | --- |
+| `--build-arg` | `BASE_IMAGE=<base_image>:<tag>` | `BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.0` | Specifies the base image to use for building the Docker image. This is useful for images that depend on other images. |
 | `-t` | `ghcr.io/smart-wheelchair-rrc/<image_name>:<tag>` | `ghcr.io/smart-wheelchair-rrc/humble:v3.0` | Tags the image with the specified name and version tag. |
 | `-f` | `<path/to/Dockerfile>` | `ROS2/AMD64x86/humble/Dockerfile` | Specifies the path to the Dockerfile to use for building the image. |
 |  | `<build_context>` | `ROS2/AMD64x86/humble` | The build context, which is the directory containing the Dockerfile and any other files needed for the build. |
@@ -185,6 +202,22 @@ When you are ready to release the next version (most likely a merge commit), you
 >
 > Both tags will trigger the workflow and push the image to GHCR.
 
+### Git clones inside the Dockerfile
+When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
+
+Moreover, Git usually doesn't print logs to stdout when run in a container, but these are very useful for debugging. We enable these using the `--progress --verbose` flags.
+
+Therefore, a complete `git clone` command would look like this:
+
+```bash
+git clone --depth=1 --progress --verbose <repository_url>
+```
+
+As an example:
+
+```bash
+git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
+```
 
 
 ## Acknowledgements
