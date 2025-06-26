@@ -183,8 +183,8 @@ docker build --build-arg BASE_IMAGE=<base_image>:<tag> -t ghcr.io/smart-wheelcha
 | --- | --- | --- | --- |
 | `--build-arg` | `BASE_IMAGE=<base_image>:<tag>` | `BASE_IMAGE=ghcr.io/smart-wheelchair-rrc/humble_gpu:v3.0` | Specifies the base image to use for building the Docker image. This is useful for images that depend on other images. |
 | `-t` | `ghcr.io/smart-wheelchair-rrc/<image_name>:<tag>` | `ghcr.io/smart-wheelchair-rrc/humble:v3.0` | Tags the image with the specified name and version tag. |
-| `-f` | `<path/to/Dockerfile>` | `ROS2/AMD64x86/humble/Dockerfile` | Specifies the path to the Dockerfile to use for building the image. |
-|  | `<build_context>` | `ROS2/AMD64x86/humble` | The build context, which is the directory containing the Dockerfile and any other files needed for the build. |
+| `-f` | `<path/to/Dockerfile>` | `ROS2/humble/Dockerfile` | Specifies the path to the Dockerfile to use for building the image. |
+|  | `<build_context>` | `ROS2/humble` | The build context, which is the directory containing the Dockerfile and any other files needed for the build. |
 
 ### Recommendations for tagging images
 Suggestions for filling in the SemVer version tag.
