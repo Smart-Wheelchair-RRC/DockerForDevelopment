@@ -3,16 +3,20 @@ name: Build and Push Docker Image
 on:
   workflow_call:
     inputs:
-      build_context:
+      docker_build_context:
         description: 'Path to the build context'
         required: true
         type: string
-      image_name:
+      target_image_name:
         description: 'Name of the Docker image'
         required: true
         type: string
       image_version:
         description: 'Version/tag for the Docker image'
+        required: true
+        type: string
+      base_image:
+        description: 'Base image to use for the build'
         required: true
         type: string
       runs_on:
@@ -49,8 +53,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ${{ inputs.build_context }}
+          context: ${{ inputs.docker_build_context }}
           push: true
-          tags: ghcr.io/${{ env.GITHUB_OWNER_LOWER }}/${{ inputs.image_name }}:${{ inputs.image_version }}
+          tags: ${{ inputs.target_image_name }}:${{ inputs.image_version }}
+          build-args: |
+            BASE_IMAGE=${{ inputs.base_image }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
