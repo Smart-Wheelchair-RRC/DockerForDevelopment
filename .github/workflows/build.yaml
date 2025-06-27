@@ -103,7 +103,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - ${{ fromJson(needs.check-conditions.outputs.combinations).wheelchair2_harmonic }}
+          - ${{ fromJson(needs.check-conditions.outputs.combinations).humble_harmonic }}
     uses: ./.github/workflows/build-workflow.yaml
     with:
       docker_build_context: ${{ matrix.config.docker_build_context }}
