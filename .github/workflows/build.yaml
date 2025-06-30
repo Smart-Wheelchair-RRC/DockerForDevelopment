@@ -8,15 +8,15 @@ on:
       - 'v*'
 
 jobs:
-  
+
   # Stage 0: Check conditions and set variables
   check-conditions:
     runs-on: ubuntu-latest
-    
+
     outputs:
       image_version: ${{ steps.set_version.outputs.image_version }}
-      branch: ${{ steps.branch-check.outputs.branch }}
-    
+      is_master_branch: ${{ steps.branch-check.outputs.is_master_branch }}
+
     permissions:
       packages: write
       contents: read
@@ -28,17 +28,22 @@ jobs:
         with:
           fetch-depth: 0  # fetch all history to compare with previous commits
 
-      - name: Check the branch
+      - name: Check if on master branch
         id: branch-check
         run: |
-          # check the current branch name
-          branches=$(git branch -r --contains "$GITHUB_SHA")
-          echo "branch=$branches" >> "$GITHUB_OUTPUT"
+          # Check if the current commit is on 'origin/master'
+          # git branch -r --contains "$GITHUB_SHA" will output 'origin/master'
+          # (or 'origin/HEAD -> origin/master') if the commit is on master.
+          if git branch -r --contains "$GITHUB_SHA" | grep -q 'origin/master'; then
+            echo "is_master_branch=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_master_branch=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Fail if tag is invalid
-        if: ${{ !( startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && contains(steps.branch-check.outputs.branch, 'origin/master') ) ) }}
+        if: ${{ !( startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && steps.branch-check.outputs.is_master_branch == 'true' ) ) }}
         run: |
-          echo "This condition is not valid. Current branch: ${{ steps.branch-check.outputs.branch }}, ref: ${{ github.ref }}. You must have EITHER a dev\* ref on any branch OR a latest or v\* tag on the master branch."
+          echo "This condition is not valid. ref: ${{ github.ref }}. You must have EITHER a dev\* ref on any branch OR a latest or v\* tag on the master branch."
           exit 1
 
       - name: Set image version
