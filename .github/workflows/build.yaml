@@ -9,17 +9,15 @@ on:
 
 jobs:
   
-  # Detect file changes and set conditions for subsequent jobs
+  # Stage 0: Check conditions and set variables
   check-conditions:
     runs-on: ubuntu-latest
     
     outputs:
-      ros2-amd64: ${{ steps.filter.outputs.ros2-amd64 }}
-      ros2-jetson: ${{ steps.filter.outputs.ros2-jetson }}
-      workflow: ${{ steps.filter.outputs.workflow }}
       image_version: ${{ steps.set_version.outputs.image_version }}
+      branch: ${{ steps.branch-check.outputs.branch }}
     
-      permissions:
+    permissions:
       packages: write
       contents: read
       pull-requests: write
@@ -33,40 +31,25 @@ jobs:
       - name: Check the branch
         id: branch-check
         run: |
-          # find all remote branches containing this commit
-          branches=$(git branch -r --contains $GITHUB_SHA)
-          echo "::set-output name=branches::$branches"
+          # check the current branch name
+          branches=$(git branch -r --contains "$GITHUB_SHA")
+          echo "branch=$branches" >> "$GITHUB_OUTPUT"
 
       - name: Fail if tag is invalid
-        if: |
-          startsWith(github.ref, 'refs/tags/dev') ||
-          ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) &&
-            contains( steps.branch-check.outputs.branches, 'origin/master' ) )
+        if: ${{ !( startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && contains(steps.branch-check.outputs.branch, 'origin/master') ) ) }}
         run: |
-          echo "Tag $GITHUB_REF is not on master. Aborting."
+          echo "This condition is not valid. Current branch: ${{ steps.branch-check.outputs.branch }}, ref: ${{ github.ref }}. You must have EITHER a dev\* ref on any branch OR a latest or v\* tag on the master branch."
           exit 1
-      
-      - name: Check for file changes
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            ros2-amd64:
-              - 'ROS2/AMD64x86/**'
-            workflow:
-              - '.github/workflows/**'
-#           ros2-jetson:
-#             - 'ROS2/Jetson/**'
 
       - name: Set image version
         id: set_version
         run: |
           echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
+
   # Stage 1: ROS2 base humble images (AMD64/x86)
   ros2-humble-base-amd64:
     needs: check-conditions
-    if: ${{ needs.check-conditions.outputs.ros2-amd64 == 'true' || needs.check-conditions.outputs.workflow == 'true' }}
     name: ROS2 Humble Base Images (AMD64)
     permissions:
       packages: write
@@ -86,7 +69,6 @@ jobs:
   # Stage 1: ROS2 base humble images (Jetson/ARM)
   # ros2-humble-jetson:
   #   needs: check-conditions
-  #   if: ${{ needs.check-conditions.outputs.ros2-jetson == 'true' || needs.check-conditions.outputs.workflow == 'true' }}
   #   name: ROS2 Humble Jetson Base
   #   permissions:
   #     packages: write
@@ -105,7 +87,6 @@ jobs:
   # Stage 2: ROS2 humble_harmonic (depends on base humble)
   ros2-humble-harmonic:
     needs: [check-conditions, ros2-humble-base-amd64]
-    if: ${{ needs.check-conditions.outputs.ros2-amd64 == 'true' || needs.check-conditions.outputs.workflow == 'true' }}
     name: ROS2 Humble Harmonic
     permissions:
       packages: write
@@ -124,7 +105,6 @@ jobs:
   # Stage 3: ROS2 wheelchair2_base images (AMD64/x86)
   ros2-wheelchair-base:
     needs: [check-conditions, ros2-humble-base-amd64, ros2-humble-harmonic]
-    if: ${{ needs.check-conditions.outputs.ros2-amd64 == 'true' || needs.check-conditions.outputs.workflow == 'true' }}
     name: ROS2 Wheelchair2 Base Images
     permissions:
       packages: write
@@ -144,7 +124,6 @@ jobs:
   # Stage 3: ROS2 wheelchair2_base_jetson (depends on humble_jetson)
   # ros2-wheelchair-jetson:
   #   needs: [check-conditions, ros2-humble-jetson]
-  #   if: ${{ needs.check-conditions.outputs.ros2-jetson == 'true' || needs.check-conditions.outputs.workflow == 'true' }}
   #   name: ROS2 Wheelchair2 Jetson Images
   #   permissions:
   #     packages: write

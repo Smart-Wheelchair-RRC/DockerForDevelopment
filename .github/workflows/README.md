@@ -22,16 +22,7 @@ This is a high-level understanding of the workflow described in [build.yaml](/.g
 
 1.  The workflow is triggered when a tag starting with `v` (or `dev`) is pushed to the repository.
 
-1.  Firstly, the workflow checks out the code from the repository and looks for changes. At a time, a change may be present in a full directory only. We do not test for individual Dockerfiles because certain images depend on others, and we want to build them in the correct order.
-
-    Places tested for changes:
-    -   `ROS2/AMD64x86/`: desktop images for AMD64x86 architecture
-    -   `ROS2/Jetson`: edge-computing images for NVIDIA Jetson architecture (once implemented)
-    -   `.github/workflows/`: GitHub Actions workflows
-
 1.  Next, the workflow looks for the Git tag. If it finds a tag that starts with `v`/`dev`, records this to a variable, so that it may be used later in the workflow.
-
-1.  If changes were detected, the workflow proceeds to build the images. If any GitHub Action changes were detected, everything is rebuilt; otherwise only the changed images are rebuilt.
 
 1.  The remainder of the build is split into five sections, which run in three steps (some sections run in parallel):
 
@@ -65,34 +56,44 @@ Here, we discuss only the potentially confusing parts of the main workflow, whic
 
 You are encouraged to read the [GitHub Actions documentation](https://docs.github.com/en/actions) for more information on how GitHub Actions work, how to write workflows, and reference for syntax. If you use VS Code to write workflows, the [GitHub Actions extension](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-github-actions) is useful.
 
-### Checking for changes
-We use the [`dorny/paths-filter`](https://github.com/dorny/paths-filter/tree/v2/) action to check for changes in the repository. This action allows us to specify paths to check for changes, and it will return a boolean value indicating whether any changes were detected.
+### Check conditions and set variables
+We want our workflow to run only if certain conditions are met:
 
-These are stored as outputs of the `changes` job:
-
-```yaml
-outputs:
-  ros2-amd64: ${{ steps.filter.outputs.ros2-amd64 }}
-  ros2-jetson: ${{ steps.filter.outputs.ros2-jetson }}
-  workflow: ${{ steps.filter.outputs.workflow }}
-  image_version: ${{ steps.set_version.outputs.image_version }}
-```
-
-As described earlier, we check for changes in the three main directories:
+> Workflow will run if:
+> * A tag starting with `dev` (e.g., `dev3.4`) is pushed to **any branch**
+> * A tag named `latest` or starting with `v` (e.g., `v3.0`) is pushed to a **commit on the `master` branch**
+>
+> Workflow will not run if:
+> * A regular commit, push, or pull request is made to any branch without a matching tag
+> * A tag that does **not** match the patterns `dev*`, `v*`, or `latest` is pushed
+> * A `v*` or `latest` tag is pushed to a commit that is **not** on the `master` branch
+Firstly, we only trigger the workflow on the push of certain tags:
 
 ```yaml
-- name: Check for changes
-  id: filter
-  uses: dorny/paths-filter@v2
-  with:
-    filters: |
-      ros2-amd64:
-        - 'ROS2/AMD64x86/**'
-      ros2-jetson:
-        - 'ROS2/Jetson/**'
-      workflow:
-        - '.github/workflows/**'
+on:
+  push:
+    tags:
+      - 'dev*'
+      - 'latest'
+      - 'v*'
 ```
+Next, we validate the branch requirements in the `check-conditions` job.
+
+```yaml
+- name: Check the branch
+  id: branch-check
+  run: |
+    # check the current branch name
+    branches=$(git branch -r --contains "$GITHUB_SHA")
+    echo "branch=$branches" >> "$GITHUB_OUTPUT"
+- name: Fail if tag is invalid
+  if: ${{ !( startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && contains(steps.branch-check.outputs.branch, 'origin/master') ) ) }}
+  run: |
+    echo "Tag $GITHUB_REF is not on master, but is on branch ${{ steps.branch-check.outputs.branch }}. This workflow only runs on master branch."
+    exit 1
+```
+
+If our requirements were not met, the workflow will exit gracefully with an error message. Since all other tasks depend on this job, they will not run if the conditions are not met.
 
 ### Setting the image version
 This simply involves obtaining the Git tag and setting it as an environment variable for later use:
@@ -111,7 +112,6 @@ While there are several sections as described earlier, we shall dive deeper into
 # Stage 3: ROS2 wheelchair2_base images (AMD64/x86)
 ros2-wheelchair-base:
   needs: [changes, ros2-humble-base-amd64, ros2-humble-harmonic]
-  if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
   name: ROS2 Wheelchair2 Base Images
   permissions:
     packages: write
@@ -131,7 +131,6 @@ ros2-wheelchair-base:
 
 Let's break this down:
 -   `needs`: This job depends on the `changes` job and the `ros2-humble-base-amd64` and `ros2-humble-harmonic` jobs. It will only run if these jobs are successful. This ensures that dependant images are built in the correct order.
--   `if`: This condition checks if there are changes in the `ROS2/AMD64x86/` directory or if there are changes in the workflows. If either condition is true, this job will run.
 -   `permissions`: This job requires write access to packages (to push the built images) and read access to contents (to read the repository).
 -   `strategy`: This defines a matrix strategy for the job. In this case, we have two configurations:
     -   `wheelchair2_base`: The base image for the wheelchair2 project.
