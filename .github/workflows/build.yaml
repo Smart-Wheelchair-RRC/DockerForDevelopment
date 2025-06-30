@@ -3,19 +3,20 @@ name: Build Multi-Architecture ROS Containers
 on:
   push:
     tags:
-      - 'v*'
+      - 'dev*'
       - 'latest'
-    branches:
-      - master
+      - 'v*'
+
 jobs:
-  # Detect file changes
-  changes:
+  
+  # Stage 0: Check conditions and set variables
+  check-conditions:
     runs-on: ubuntu-latest
+    
     outputs:
-      ros2-amd64: ${{ steps.filter.outputs.ros2-amd64 }}
-      ros2-jetson: ${{ steps.filter.outputs.ros2-jetson }}
-      workflow: ${{ steps.filter.outputs.workflow }}
       image_version: ${{ steps.set_version.outputs.image_version }}
+      branch: ${{ steps.branch-check.outputs.branch }}
+    
     permissions:
       packages: write
       contents: read
@@ -26,28 +27,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # fetch all history to compare with previous commits
-      
-      - name: Check for file changes
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            ros2-amd64:
-              - 'ROS2/AMD64x86/**'
-            workflow:
-              - '.github/workflows/**'
-#           ros2-jetson:
-#             - 'ROS2/Jetson/**'
+
+      - name: Check the branch
+        id: branch-check
+        run: |
+          # check the current branch name
+          branches=$(git branch -r --contains "$GITHUB_SHA")
+          echo "branch=$branches" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if tag is invalid
+        if: ${{ !( startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && contains(steps.branch-check.outputs.branch, 'origin/master') ) ) }}
+        run: |
+          echo "This condition is not valid. Current branch: ${{ steps.branch-check.outputs.branch }}, ref: ${{ github.ref }}. You must have EITHER a dev\* ref on any branch OR a latest or v\* tag on the master branch."
+          exit 1
 
       - name: Set image version
         id: set_version
         run: |
           echo "image_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
+
   # Stage 1: ROS2 base humble images (AMD64/x86)
   ros2-humble-base-amd64:
-    needs: changes
-    if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
+    needs: check-conditions
     name: ROS2 Humble Base Images (AMD64)
     permissions:
       packages: write
@@ -55,8 +57,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/AMD64x86/humble', image_name: 'humble', image_version: "${{ needs.changes.outputs.image_version }}" }
-          - { build_context: './ROS2/AMD64x86/humble_gpu', image_name: 'humble_gpu', image_version: "${{ needs.changes.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/humble', image_name: 'humble', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/humble_gpu', image_name: 'humble_gpu', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -66,8 +68,7 @@ jobs:
 
   # Stage 1: ROS2 base humble images (Jetson/ARM)
   # ros2-humble-jetson:
-  #   needs: changes
-  #   if: ${{ needs.changes.outputs.ros2-jetson == 'true' || needs.changes.outputs.workflow == 'true' }}
+  #   needs: check-conditions
   #   name: ROS2 Humble Jetson Base
   #   permissions:
   #     packages: write
@@ -75,7 +76,7 @@ jobs:
   #   strategy:
   #     matrix:
   #       config:
-  #         - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: "${{ needs.changes.outputs.image_version }}" }
+  #         - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
   #   uses: ./.github/workflows/build-workflow.yaml
   #   with:
   #     build_context: ${{ matrix.config.build_context }}
@@ -85,8 +86,7 @@ jobs:
 
   # Stage 2: ROS2 humble_harmonic (depends on base humble)
   ros2-humble-harmonic:
-    needs: [changes, ros2-humble-base-amd64]
-    if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
+    needs: [check-conditions, ros2-humble-base-amd64]
     name: ROS2 Humble Harmonic
     permissions:
       packages: write
@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: "${{ needs.changes.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -104,8 +104,7 @@ jobs:
 
   # Stage 3: ROS2 wheelchair2_base images (AMD64/x86)
   ros2-wheelchair-base:
-    needs: [changes, ros2-humble-base-amd64, ros2-humble-harmonic]
-    if: ${{ needs.changes.outputs.ros2-amd64 == 'true' || needs.changes.outputs.workflow == 'true' }}
+    needs: [check-conditions, ros2-humble-base-amd64, ros2-humble-harmonic]
     name: ROS2 Wheelchair2 Base Images
     permissions:
       packages: write
@@ -113,8 +112,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - { build_context: './ROS2/AMD64x86/wheelchair2_base', image_name: 'wheelchair2_base', image_version: "${{ needs.changes.outputs.image_version }}" }
-          - { build_context: './ROS2/AMD64x86/wheelchair2_base_gazebo', image_name: 'wheelchair2_base_gazebo', image_version: "${{ needs.changes.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/wheelchair2_base', image_name: 'wheelchair2_base', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/wheelchair2_base_gazebo', image_name: 'wheelchair2_base_gazebo', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -124,8 +123,7 @@ jobs:
 
   # Stage 3: ROS2 wheelchair2_base_jetson (depends on humble_jetson)
   # ros2-wheelchair-jetson:
-  #   needs: [changes, ros2-humble-jetson]
-  #   if: ${{ needs.changes.outputs.ros2-jetson == 'true' || needs.changes.outputs.workflow == 'true' }}
+  #   needs: [check-conditions, ros2-humble-jetson]
   #   name: ROS2 Wheelchair2 Jetson Images
   #   permissions:
   #     packages: write
@@ -133,7 +131,7 @@ jobs:
   #   strategy:
   #     matrix:
   #       config:
-  #         - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: "${{ needs.changes.outputs.image_version }}" }
+  #         - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: "${{ needs.check-conditions.outputs.image_version }}" }
   #   uses: ./.github/workflows/build-workflow.yaml
   #   with:
   #     build_context: ${{ matrix.config.build_context }}

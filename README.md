@@ -70,22 +70,6 @@ You can try the following steps:
     sudo systemctl restart docker
     ```
 
-1.  When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
-
-    Moreover, Git usually doesn't print logs to stdout when run in a container, but these are very useful for debugging. We enable these using the `--progress --verbose` flags.
-
-    Therefore, a complete `git clone` command would look like this:
-
-    ```bash
-    git clone --depth=1 --progress --verbose <repository_url>
-    ```
-
-    As an example:
-    
-    ```bash
-    git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
-    ```
-
 ## Pulling an image
 
 To download a pre-built image from GitHub Container Registry (ghcr.io), use the following command:
@@ -185,7 +169,21 @@ When you are ready to release the next version (most likely a merge commit), you
 >
 > Both tags will trigger the workflow and push the image to GHCR.
 
+### Git clones inside the Dockerfile
+When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
+
+Moreover, Git usually doesn't print logs to stdout when run in a container, but these are very useful for debugging. We enable these using the `--progress --verbose` flags.
+Therefore, a complete `git clone` command would look like this:
+```bash
+git clone --depth=1 --progress --verbose <repository_url>
+```
+As an example:
+```bash
+git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
+```
+
 
 
 ## Acknowledgements
-This work is inspired by the work of [soham2560](https://github.com/soham2560/DockerForROS2Development).
+-   The initial Dockerfiles were inspired by the work of [soham2560](https://github.com/soham2560/DockerForROS2Development).
+-   The CI/CD system was set up by [eccentricOrange](https://github.com/eccentricOrange/).
