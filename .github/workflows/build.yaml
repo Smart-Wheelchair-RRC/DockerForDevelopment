@@ -50,22 +50,22 @@ jobs:
       runs_on: ubuntu-latest
 
   # Stage 1: ROS2 base humble images (Jetson/ARM)
-  # ros2-humble-jetson:
-  #   needs: get-version
-  #   name: ROS2 Humble Jetson Base
-  #   permissions:
-  #     packages: write
-  #     contents: read
-  #   strategy:
-  #     matrix:
-  #       config:
-  #         - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: "${{ needs.get-version.outputs.image_version }}" }
-  #   uses: ./.github/workflows/build-workflow.yaml
-  #   with:
-  #     build_context: ${{ matrix.config.build_context }}
-  #     image_name: ${{ matrix.config.image_name }}
-  #     image_version: ${{ matrix.config.image_version }}
-  #     runs_on: ubuntu-24.04-arm
+  ros2-humble-jetson:
+    needs: get-version
+    name: ROS2 Humble Jetson Base
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      matrix:
+        config:
+          - { build_context: './ROS2/Jetson/humble_jetson', image_name: 'humble_jetson', image_version: "${{ needs.get-version.outputs.image_version }}" }
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-22.04-arm
 
   # Stage 2: ROS2 humble_harmonic (depends on base humble)
   ros2-humble-harmonic:
@@ -105,19 +105,19 @@ jobs:
       runs_on: ubuntu-latest
 
   # Stage 3: ROS2 wheelchair2_base_jetson (depends on humble_jetson)
-  # ros2-wheelchair-jetson:
-  #   needs: [get-version, ros2-humble-jetson]
-  #   name: ROS2 Wheelchair2 Jetson Images
-  #   permissions:
-  #     packages: write
-  #     contents: read
-  #   strategy:
-  #     matrix:
-  #       config:
-  #         - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: "${{ needs.get-version.outputs.image_version }}" }
-  #   uses: ./.github/workflows/build-workflow.yaml
-  #   with:
-  #     build_context: ${{ matrix.config.build_context }}
-  #     image_name: ${{ matrix.config.image_name }}
-  #     image_version: ${{ matrix.config.image_version }}
-  #     runs_on: ubuntu-24.04-arm
+  ros2-wheelchair-jetson:
+    needs: [get-version, ros2-humble-jetson]
+    name: ROS2 Wheelchair2 Jetson Images
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      matrix:
+        config:
+          - { build_context: './ROS2/Jetson/wheelchair2_base_jetson', image_name: 'wheelchair2_base_jetson', image_version: "${{ needs.get-version.outputs.image_version }}" }
+    uses: ./.github/workflows/build-workflow.yaml
+    with:
+      build_context: ${{ matrix.config.build_context }}
+      image_name: ${{ matrix.config.image_name }}
+      image_version: ${{ matrix.config.image_version }}
+      runs_on: ubuntu-22.04-arm
