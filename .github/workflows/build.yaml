@@ -121,3 +121,25 @@ jobs:
       image_name: ${{ matrix.config.image_name }}
       image_version: ${{ matrix.config.image_version }}
       runs_on: ubuntu-22.04-arm
+
+  # Stage 4: Create release
+  # if the tag is v*, create a pre-release
+  create-release:
+    needs: [ros2-wheelchair-base, ros2-wheelchair-jetson]
+    if: startsWith(github.ref_name, 'v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          prerelease: true
+          generateReleaseNotes: true
