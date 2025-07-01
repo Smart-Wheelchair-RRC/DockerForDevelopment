@@ -163,11 +163,8 @@ However, the CI/CD workflow requires that you tag every commit where you want to
 When you are ready to release the next version (most likely a merge commit), you can tag it as `v3.15.0` or `v3.15`. This will trigger the CI/CD workflow to build the image with the correct version tag.
 
 > [!NOTE]
-> - `v*` tags only work on the `master` branch.
-> - `dev*` tags can be used on any branch (including `master`).
-> - While the `latest` tag is supported on the `master` branch, it is **not recommended** to use it. Instead, prefer specific version tags like `v3.15` or `v3.15.0`.
->
-> Both tags will trigger the workflow and push the image to GHCR.
+> - `v*` tags should only be used on the `master` branch.
+> - `dev*` tags may be used on any branch (including `master`).
 
 ### Git clones inside the Dockerfile
 When we're building a package from a GitHub repository, we only need the latest commits. We achieve this using the `--depth=1` option in the `git clone` command. This option tells Git to clone only the latest commit, which is sufficient for building the package.
