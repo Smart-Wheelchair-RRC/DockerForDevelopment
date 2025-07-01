@@ -57,43 +57,15 @@ Here, we discuss only the potentially confusing parts of the main workflow, whic
 You are encouraged to read the [GitHub Actions documentation](https://docs.github.com/en/actions) for more information on how GitHub Actions work, how to write workflows, and reference for syntax. If you use VS Code to write workflows, the [GitHub Actions extension](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-github-actions) is useful.
 
 ### Check conditions and set variables
-We want our workflow to run only if certain conditions are met:
-
-> Workflow will run if:
-> * A tag starting with `dev` (e.g., `dev3.4`) is pushed to **any branch**
-> * A tag named `latest` or starting with `v` (e.g., `v3.0`) is pushed to a **commit on the `master` branch**
->
-> Workflow will not run if:
-> * A regular commit, push, or pull request is made to any branch without a matching tag
-> * A tag that does **not** match the patterns `dev*`, `v*`, or `latest` is pushed
-> * A `v*` or `latest` tag is pushed to a commit that is **not** on the `master` branch
-Firstly, we only trigger the workflow on the push of certain tags:
+We only trigger the workflow on the push of certain tags:
 
 ```yaml
 on:
   push:
     tags:
       - 'dev*'
-      - 'latest'
       - 'v*'
 ```
-Next, we validate the branch requirements in the `check-conditions` job.
-
-```yaml
-- name: Check the branch
-  id: branch-check
-  run: |
-    # check the current branch name
-    branches=$(git branch -r --contains "$GITHUB_SHA")
-    echo "branch=$branches" >> "$GITHUB_OUTPUT"
-- name: Fail if tag is invalid
-  if: ${{ !( startsWith(github.ref, 'refs/tags/dev') || ( (github.ref == 'refs/tags/latest' || startsWith(github.ref, 'refs/tags/v')) && contains(steps.branch-check.outputs.branch, 'origin/master') ) ) }}
-  run: |
-    echo "Tag $GITHUB_REF is not on master, but is on branch ${{ steps.branch-check.outputs.branch }}. This workflow only runs on master branch."
-    exit 1
-```
-
-If our requirements were not met, the workflow will exit gracefully with an error message. Since all other tasks depend on this job, they will not run if the conditions are not met.
 
 ### Setting the image version
 This simply involves obtaining the Git tag and setting it as an environment variable for later use:
