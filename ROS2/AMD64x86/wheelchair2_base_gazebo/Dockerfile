@@ -29,6 +29,8 @@ RUN sudo apt-get update \
     at \
     v4l-utils \
     xterm \
+    python3-venv \
+    python3-pip \
     && sudo apt-get autoremove -y \
     && sudo apt-get clean -y \
     && sudo rm -rf /var/lib/apt/lists/*
@@ -87,10 +89,20 @@ ENV GZ_GUI_PLUGIN_PATH=/home/$USERNAME/RGLGazeboPlugin/install/RGLVisualize
 ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/$USERNAME/RGLGazeboPlugin/install/RGLServerPlugin
 ENV RGL_PATTERNS_DIR=/home/$USERNAME/RGLGazeboPlugin/lidar_patterns
 
-COPY pythonPkgs.list /tmp/pythonPkgs.list
-RUN sudo apt-get update \
-    && pip3 install $(cat /tmp/pythonPkgs.list) \
-    && sudo rm -rf /var/lib/apt/lists/*
+# Deal with python dependencies
+RUN mkdir /home/$USERNAME/python3_venvs
+
+## casadi
+COPY casadi-requirements.txt /tmp/casadi-requirements.txt
+RUN python3 -m venv /home/$USERNAME/python3_venvs/casadi_venv --system-site-packages --upgrade-deps --symlinks \
+    && /home/$USERNAME/python3_venvs/casadi_venv/bin/python -m pip install -r /tmp/casadi-requirements.txt \
+    && echo "# source /home/$USERNAME/python3_venvs/casadi_venv/bin/activate" >> /home/$USERNAME/.bashrc
+
+## open3d
+RUN python3 -m venv /home/$USERNAME/python3_venvs/o3d_venv --system-site-packages --upgrade-deps --symlinks \
+    && /home/$USERNAME/python3_venvs/o3d_venv/bin/python -m pip install open3d \
+    && /home/$USERNAME/python3_venvs/o3d_venv/bin/python -m pip install numpy==1.24 \
+    && echo "# source /home/$USERNAME/python3_venvs/o3d_venv/bin/activate" >> /home/$USERNAME/.bashrc
 
 RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends\
