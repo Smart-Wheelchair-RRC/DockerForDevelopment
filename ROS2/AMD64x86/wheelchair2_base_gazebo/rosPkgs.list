@@ -9,3 +9,4 @@ ros-humble-hardware-interface
 ros-humble-pcl-ros
 ros-humble-twist-stamper
 ros-humble-ament-cmake
+ros-humble-libpointmatcher
