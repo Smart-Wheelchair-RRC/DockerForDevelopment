@@ -8,3 +8,4 @@ ros-humble-spatio-temporal-voxel-layer
 ros-humble-hardware-interface
 ros-humble-pcl-ros
 ros-humble-twist-stamper
+ros-humble-libpointmatcher
