@@ -115,20 +115,37 @@ ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
 
 
 #Install Miniconda
-RUN mkdir -p ~/miniconda3 && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
-    rm ~/miniconda3/miniconda.sh && \
-    source ~/miniconda3/bin/activate && \
-    conda init --all && \ 
-    conda config --set auto_activate_base false
+# RUN mkdir -p ~/miniconda3 && \
+#     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
+#     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
+#     rm ~/miniconda3/miniconda.sh && \
+#     source ~/miniconda3/bin/activate && \
+#     conda init --all && \ 
+#     conda config --set auto_activate_base false
+
+# ENV PATH=/home/container_user/miniconda3/bin:$PATH
+# RUN conda update -y conda
+# RUN conda init
+
+# RUN sudo mkdir -p /home/container_user/conda_envs
+# COPY detection.yml /home/container_user/conda_envs/detection.yml
+# WORKDIR /home/container_user/conda_envs
+# RUN conda env create -f detection.yml -y
+
+# Install Miniconda
+RUN mkdir -p /home/container_user/miniconda3 && \
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /home/container_user/miniconda3/miniconda.sh && \
+    bash /home/container_user/miniconda3/miniconda.sh -b -u -p /home/container_user/miniconda3 && \
+    rm /home/container_user/miniconda3/miniconda.sh
 
 ENV PATH=/home/container_user/miniconda3/bin:$PATH
-RUN conda update -y conda
-RUN conda init
 
+RUN conda init --all && \
+    conda config --set auto_activate_base false && \
+    conda config --set anaconda_tos_accepted true -y
+
+RUN conda update -y conda
 RUN sudo mkdir -p /home/container_user/conda_envs
 COPY detection.yml /home/container_user/conda_envs/detection.yml
 WORKDIR /home/container_user/conda_envs
-RUN conda env create -f detection.yml -y
-
+RUN conda env create -f detection.yml
