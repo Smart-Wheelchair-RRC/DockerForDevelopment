@@ -122,3 +122,8 @@ RUN mkdir -p ~/miniconda3 && \
     source ~/miniconda3/bin/activate && \
     conda init --all && \ 
     conda config --set auto_activate_base false
+
+RUN sudo mkdir -p /home/$USERNAME/conda_envs
+COPY detection.yml /home/$USERNAME/conda_envs/detection.yml
+WORKDIR /home/$USERNAME/conda_envs
+RUN conda env create -f detection.yml

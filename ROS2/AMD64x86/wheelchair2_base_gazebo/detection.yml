@@ -1,0 +1,14 @@
+name: detection
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+      - "numpy<2"
+      - ultralytics
+      - ros2_numpy
+      - torch
+      - torchvision
+      - matplotlib
+      - scikit-learn
