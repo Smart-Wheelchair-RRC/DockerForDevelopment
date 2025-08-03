@@ -127,5 +127,8 @@ RUN sudo mkdir -p /home/container_user/conda_envs
 COPY detection.yml /home/container_user/conda_envs/detection.yml
 WORKDIR /home/container_user/conda_envs
 ENV PATH=/home/container_user/miniconda3/bin:$PATH
+RUN conda tos accept --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --channel https://repo.anaconda.com/pkgs/r
+
 RUN conda env create -f detection.yml -y
 
