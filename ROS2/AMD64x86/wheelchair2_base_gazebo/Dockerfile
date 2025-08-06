@@ -117,12 +117,9 @@ ENV MINICONDA_PATH=/opt/conda
 ENV PATH=$MINICONDA_PATH/bin:$PATH
 
 # Install Miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
-    # Use bash to run the installer script
-    bash miniconda.sh -b -u -p $MINICONDA_PATH && \
-    # Remove the installer script after use
-    rm miniconda.sh && \
-    # The conda command is now available thanks to the ENV PATH instruction above
+RUN sudo wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    sudo bash miniconda.sh -b -u -p $MINICONDA_PATH && \
+    sudo rm -rf miniconda.sh && \
     conda init bash
 
 RUN sudo mkdir -p /home/container_user/conda_envs
