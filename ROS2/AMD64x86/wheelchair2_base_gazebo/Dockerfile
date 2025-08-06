@@ -138,14 +138,11 @@ RUN mkdir -p /home/container_user/miniconda3 && \
     bash /home/container_user/miniconda3/miniconda.sh -b -u -p /home/container_user/miniconda3 && \
     rm /home/container_user/miniconda3/miniconda.sh
 
-ENV PATH=/home/container_user/miniconda3/bin:$PATH
-
-RUN conda init --all && \
-    conda config --set auto_activate_base false && \
-    conda config --set anaconda_tos_accepted true -y
-
-RUN conda update -y conda
 RUN sudo mkdir -p /home/container_user/conda_envs
-COPY detection.yml /home/container_user/conda_envs/detection.yml
+
 WORKDIR /home/container_user/conda_envs
-RUN conda env create -f detection.yml
+COPY detection1.yml .
+RUN conda env create -f detection1.yml
+
+COPY detection2.yml .
+RUN conda env create -f detection2.yml
