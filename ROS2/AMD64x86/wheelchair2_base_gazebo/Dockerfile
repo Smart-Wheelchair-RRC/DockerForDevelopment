@@ -143,6 +143,3 @@ RUN sudo mkdir -p /home/container_user/conda_envs
 WORKDIR /home/container_user/conda_envs
 COPY detection1.yml .
 RUN conda env create -f detection1.yml
-
-COPY detection2.yml .
-RUN conda env create -f detection2.yml
