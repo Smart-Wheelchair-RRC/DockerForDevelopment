@@ -77,7 +77,16 @@ RUN sudo apt-get update \
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
 
-COPY .tmux.conf /home/wheelchair2/.tmux.conf
+COPY .tmux.conf /home/$USERNAME/.tmux.conf
 
 # Environment variable for map folder
 ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
+
+#Install Miniconda
+RUN mkdir -p ~/miniconda3 && \
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O ~/miniconda3/miniconda.sh && \
+    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
+    rm ~/miniconda3/miniconda.sh && \
+    source ~/miniconda3/bin/activate && \
+    conda init --all && \ 
+    conda config --set auto_activate_base false
