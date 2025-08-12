@@ -26,6 +26,7 @@ RUN sudo apt-get update \
     libglfw3-dev \
     libgl1-mesa-dev \
     libglu1-mesa-dev \
+    libaprutil1-dev \
     at \
     v4l-utils \
     xterm \
