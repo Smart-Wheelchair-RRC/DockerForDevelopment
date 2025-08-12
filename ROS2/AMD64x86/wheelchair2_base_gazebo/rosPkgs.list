@@ -10,3 +10,7 @@ ros-humble-pcl-ros
 ros-humble-twist-stamper
 ros-humble-ament-cmake
 ros-humble-libpointmatcher
+ros-humble-camera-info-manager
+ros-humble-imu-tools
+ros-humble-joint-state-publisher
+ros-humble-joint-state-publisher-gui
