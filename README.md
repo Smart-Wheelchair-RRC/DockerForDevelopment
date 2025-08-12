@@ -182,5 +182,6 @@ git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.g
 
 
 ## Acknowledgements
+**Please consider giving appropriate credit when using these images in your work.**
 -   The initial Dockerfiles were inspired by the work of [soham2560](https://github.com/soham2560/DockerForROS2Development).
 -   The CI/CD system was set up by [eccentricOrange](https://github.com/eccentricOrange/).
