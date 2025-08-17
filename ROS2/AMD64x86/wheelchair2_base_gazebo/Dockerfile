@@ -30,6 +30,11 @@ RUN sudo apt-get update \
     at \
     v4l-utils \
     xterm \
+    tmux \
+    vim \
+    nano \
+    tree \
+    python3.10-venv \
     && sudo apt-get autoremove -y \
     && sudo apt-get clean -y \
     && sudo rm -rf /var/lib/apt/lists/*
@@ -44,8 +49,6 @@ RUN sudo mkdir -p /etc/udev/rules.d && \
 RUN mkdir build && cd build \
     && cmake ../ \
     && sudo make uninstall && make clean && make && sudo make install
-
-
 
 # Build and install Livox-SDK2
 WORKDIR /home/$USERNAME
@@ -95,16 +98,6 @@ RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
 
-RUN sudo apt-get update \
-    && sudo apt-get -y install --no-install-recommends\
-    tmux \
-    vim \
-    nano \
-    tree \
-    && sudo apt-get autoremove -y \
-    && sudo apt-get clean -y \
-    && sudo rm -rf /var/lib/apt/lists/*
-
 # Set TERM and colorful prompt in bashrc
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
@@ -115,11 +108,11 @@ COPY .tmux.conf /home/$USERNAME/.tmux.conf
 ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
 
 
-#Install Miniconda
-RUN mkdir -p ~/miniconda3 && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
-    rm ~/miniconda3/miniconda.sh && \
-    source ~/miniconda3/bin/activate && \
-    conda init --all && \ 
-    conda config --set auto_activate_base false
+# #Install Miniconda
+# RUN mkdir -p ~/miniconda3 && \
+#     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
+#     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
+#     rm ~/miniconda3/miniconda.sh && \
+#     source ~/miniconda3/bin/activate && \
+#     conda init --all && \ 
+#     conda config --set auto_activate_base false
