@@ -8,3 +8,5 @@ ros-humble-spatio-temporal-voxel-layer
 ros-humble-hardware-interface
 ros-humble-pcl-ros
 ros-humble-libpointmatcher
+ros-humble-imu-tools
+ros-humble-geographic-info
