@@ -18,6 +18,7 @@ RUN sudo apt-get update \
     libssl-dev \
     libusb-1.0-0-dev \
     libudev-dev \
+    libgeographic-dev\
     pkg-config \
     libgtk-3-dev \
     wget \
