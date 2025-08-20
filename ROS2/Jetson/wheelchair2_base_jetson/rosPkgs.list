@@ -10,3 +10,4 @@ ros-humble-pcl-ros
 ros-humble-libpointmatcher
 ros-humble-imu-tools
 ros-humble-geographic-info
+ros-humble-robot-localization
