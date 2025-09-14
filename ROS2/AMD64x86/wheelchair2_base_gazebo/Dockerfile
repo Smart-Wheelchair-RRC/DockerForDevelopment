@@ -12,8 +12,8 @@ LABEL org.opencontainers.image.licenses="MIT"
 # handle default shell
 SHELL ["/bin/bash", "-c"]
 
-# Install Basic deps
-RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+
+RUN sudo apt-get update && sudo apt-get install -y \
     gnupg \
     software-properties-common \
     libtiff5 \
@@ -22,7 +22,10 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     libvulkan1 \
     freeglut3-dev \
     vulkan-tools \
-    libdc1394-25 \
+    libdc1394-25 
+
+# Install Basic deps
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     libssl-dev \
     libusb-1.0-0-dev \
     libudev-dev \
