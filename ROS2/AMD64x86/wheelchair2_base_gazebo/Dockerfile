@@ -13,14 +13,21 @@ LABEL org.opencontainers.image.licenses="MIT"
 SHELL ["/bin/bash", "-c"]
 
 # Install Basic deps
-RUN sudo apt-get update \
-    && sudo apt-get -y install --no-install-recommends\
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    gnupg \
+    software-properties-common \
+    libtiff5 \
+    libegl1 \
+    libxext6 \
+    libvulkan1 \
+    freeglut3-dev \
+    vulkan-tools \
+    libdc1394-25 \
     libssl-dev \
     libusb-1.0-0-dev \
     libudev-dev \
     pkg-config \
     libgtk-3-dev \
-    wget \
     cmake \
     build-essential \
     libglfw3-dev \
@@ -35,6 +42,14 @@ RUN sudo apt-get update \
     nano \
     tree \
     python3.10-venv \
+    wget \
+    ffmpeg=7:* \
+    libsm6=2:* \
+    libxext6=2:* \
+    git=1:* \
+    ninja-build \
+    gcc-10 \
+    g++-10 \
     && sudo apt-get autoremove -y \
     && sudo apt-get clean -y \
     && sudo rm -rf /var/lib/apt/lists/*
