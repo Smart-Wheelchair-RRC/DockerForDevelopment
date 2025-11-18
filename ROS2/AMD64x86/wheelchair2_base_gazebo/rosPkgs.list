@@ -14,3 +14,4 @@ ros-humble-camera-info-manager
 ros-humble-imu-tools
 ros-humble-joint-state-publisher
 ros-humble-joint-state-publisher-gui
+ros-humble-rosbag2-storage-mcap
