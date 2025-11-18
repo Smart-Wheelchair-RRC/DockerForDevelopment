@@ -1,3 +1,4 @@
 open3d
 adafruit-blinka
 adafruit-circuitpython-bno055
+jetson.GPIO
