@@ -41,7 +41,7 @@ RUN sudo apt-get update \
 
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME
-RUN git clone --branch v2.56.2 https://github.com/IntelRealSense/librealsense.git
+RUN git clone https://github.com/IntelRealSense/librealsense.git
 WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
