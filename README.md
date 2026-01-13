@@ -176,7 +176,7 @@ git clone --depth=1 --progress --verbose <repository_url>
 ```
 As an example:
 ```bash
-git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
+git clone --depth=1 --progress --verbose https://github.com/Smart-Wheelchair-RRC/Livox-SDK2.git 
 ```
 
 

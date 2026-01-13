@@ -52,7 +52,7 @@ RUN mkdir build && cd build \
 
 # Build and install Livox-SDK2
 WORKDIR /home/$USERNAME
-RUN git clone --depth=1 --progress --verbose https://github.com/rtarun1/Livox-SDK2.git 
+RUN git clone --depth=1 --progress --verbose https://github.com/Smart-Wheelchair-RRC/Livox-SDK2.git 
 RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
