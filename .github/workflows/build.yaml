@@ -78,6 +78,7 @@ jobs:
       matrix:
         config:
           - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: "${{ needs.get-version.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/wheelchair2_base_gpu', image_name: 'wheelchair2_base_gpu', image_version: "${{ needs.get-version.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}

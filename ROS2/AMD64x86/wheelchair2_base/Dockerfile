@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:v4.7
+FROM ghcr.io/smart-wheelchair-rrc/humble:dev4.10
 
 ARG USERNAME=container_user
 
@@ -35,7 +35,7 @@ RUN sudo apt-get update \
 
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME
-RUN git clone --depth=1 --progress --verbose https://github.com/IntelRealSense/librealsense.git
+RUN git clone --depth=1 --progress --verbose https://github.com/IntelRealSense/librealsense.git -b v2.56.2
 WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
