@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:dev4.10.1
+FROM ghcr.io/smart-wheelchair-rrc/humble:dev4.10.2
 
 ARG USERNAME=container_user
 
