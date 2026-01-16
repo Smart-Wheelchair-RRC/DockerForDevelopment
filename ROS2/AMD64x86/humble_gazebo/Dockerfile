@@ -53,6 +53,7 @@ RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure
 COPY aptPkgs.list /tmp/aptPkgs.list
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     $(cat /tmp/aptPkgs.list) \
+    ros-$ROS_DISTRO-desktop \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non root user with sudo privilege
