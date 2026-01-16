@@ -27,7 +27,7 @@ ENV LC_ALL=C.UTF-8
 
 # setup timezone
 RUN echo 'Asia/Kolkata' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtimeeinfo/Asia/Kolkata /etc/localtime
+    ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 
 # install packages
 COPY aptPkgs.list /tmp/aptPkgs.list
