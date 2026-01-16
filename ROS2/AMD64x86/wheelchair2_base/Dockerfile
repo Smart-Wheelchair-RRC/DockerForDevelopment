@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:dev5.0.6
+FROM ghcr.io/smart-wheelchair-rrc/humble:dev5.0.7
 
 ARG USERNAME=container_user
 
@@ -43,13 +43,13 @@ RUN sudo apt-get update \
     && sudo rm -rf /var/lib/apt/lists/*
 
 #Install Miniconda
-RUN mkdir -p ~/miniconda3 && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
-    rm ~/miniconda3/miniconda.sh && \
-    source ~/miniconda3/bin/activate && \
-    conda init --all && \ 
-    conda config --set auto_activate_base false
+# RUN mkdir -p ~/miniconda3 && \
+#     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
+#     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
+#     rm ~/miniconda3/miniconda.sh && \
+#     source ~/miniconda3/bin/activate && \
+#     conda init --all && \ 
+#     conda config --set auto_activate_base false
 
 # Set TERM and colorful prompt in bashrc
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \

@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:v4.7
+FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:dev5.0.7
 
 ARG USERNAME=container_user
 
@@ -12,37 +12,16 @@ LABEL org.opencontainers.image.licenses="MIT"
 # handle default shell
 SHELL ["/bin/bash", "-c"]
 
-# Install Basic deps
-RUN sudo apt-get update \
-    && sudo apt-get -y install --no-install-recommends\
-    libssl-dev \
-    libusb-1.0-0-dev \
-    libudev-dev \
-    pkg-config \
-    libgtk-3-dev \
-    wget \
-    cmake \
-    build-essential \
-    libglfw3-dev \
-    libgl1-mesa-dev \
-    libglu1-mesa-dev \
-    at \
-    v4l-utils \
-    xterm \
-    && sudo apt-get autoremove -y \
-    && sudo apt-get clean -y \
-    && sudo rm -rf /var/lib/apt/lists/*
-
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME
-RUN git clone --depth=1 --progress --verbose https://github.com/IntelRealSense/librealsense.git
+RUN git clone --depth=1 --progress --verbose https://github.com/IntelRealSense/librealsense.git --branch v2.56.2
 WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
 RUN mkdir build && cd build \
     && cmake ../ \
-    && sudo make uninstall && make clean && make && sudo make install
+    && sudo make uninstall -j4 && make clean && make -j4 && sudo make install -j4
 
 # Build and install Livox-SDK2
 WORKDIR /home/$USERNAME
@@ -51,7 +30,7 @@ RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
     && cmake .. && make -j \
-    && sudo make install
+    && sudo make install -j4
 
 COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \
@@ -63,15 +42,14 @@ RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
 
-RUN sudo apt-get update \
-    && sudo apt-get -y install --no-install-recommends\
-    tmux \
-    vim \
-    nano \
-    tree \
-    && sudo apt-get autoremove -y \
-    && sudo apt-get clean -y \
-    && sudo rm -rf /var/lib/apt/lists/*
+#Install Miniconda
+# RUN mkdir -p ~/miniconda3 && \
+#     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
+#     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
+#     rm ~/miniconda3/miniconda.sh && \
+#     source ~/miniconda3/bin/activate && \
+#     conda init --all && \ 
+#     conda config --set auto_activate_base false
 
 # Set TERM and colorful prompt in bashrc
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
@@ -82,11 +60,5 @@ COPY .tmux.conf /home/$USERNAME/.tmux.conf
 # Environment variable for map folder
 ENV MAP_DIR=/home/$USERNAME/wheelchair2/src/wheelchair2_navigation/maps
 
-#Install Miniconda
-RUN mkdir -p ~/miniconda3 && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O ~/miniconda3/miniconda.sh && \
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
-    rm ~/miniconda3/miniconda.sh && \
-    source ~/miniconda3/bin/activate && \
-    conda init --all && \ 
-    conda config --set auto_activate_base false
+# handle default shell
+SHELL ["/bin/bash", "-c"]
