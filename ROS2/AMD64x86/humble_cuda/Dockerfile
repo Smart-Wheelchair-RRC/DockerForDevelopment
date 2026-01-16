@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.2.2-base-ubuntu22.04
+FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
 
 # basic args
 ARG ROS_DISTRO=humble
@@ -6,32 +6,41 @@ ARG USERNAME=container_user
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# Add the following labels
+# Add metadata labels
 LABEL org.opencontainers.image.description="Docker Development Container"
-LABEL org.opencontainers.image.title="ROS2Dev"
+LABEL org.opencontainers.image.title="RRC Humble"
 LABEL org.opencontainers.image.vendor="Tarun R"
 LABEL org.opencontainers.image.source="https://github.com/Smart-Wheelchair-RRC/DockerForDevelopment"
 LABEL maintainer="tarun.ramak@gmail.com"
 LABEL org.opencontainers.image.licenses="MIT"
 
-# handle default shell
+# configure bash shell
 SHELL ["/bin/bash", "-c"]
 ENV SHELL=/bin/bash
 
+# set ROS distro env
+ENV ROS_DISTRO=$ROS_DISTRO
+
+# setup locales
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
 # setup timezone
 RUN echo 'Asia/Kolkata' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && \
-    apt-get update && \
-    apt-get install -q -y --no-install-recommends tzdata && \
-    rm -rf /var/lib/apt/lists/*
+    ln -s /usr/share/zoneinfo/Asia/Kolkata /etc/localtimeeinfo/Asia/Kolkata /etc/localtime
 
 # install packages
+COPY aptPkgs.list /tmp/aptPkgs.list
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    dirmngr \
-    gnupg2 \
-    curl \
-    ca-certificates \
+    $(cat /tmp/aptPkgs.list) \
     && rm -rf /var/lib/apt/lists/*
+
+# Create non root user with sudo privilege
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+USER $USERNAME
 
 # Setup ROS Apt sources
 RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.1.0/ros2-apt-source_1.1.0.jammy_all.deb \
@@ -41,42 +50,10 @@ RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure
     && rm -f /tmp/ros2-apt-source.deb \
     && rm -rf /var/lib/apt/lists/*
 
-# setup environment
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-
-# Create non root user with sudo privilege
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-USER $USERNAME
-
-ENV ROS_DISTRO=$ROS_DISTRO
-
-# install ros2 packages
-RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-    ros-$ROS_DISTRO-desktop \
-    && sudo rm -rf /var/lib/apt/lists/*
-
 # setup entrypoint
 COPY ./ros_entrypoint.sh /
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
-
-# install bootstrap tools
-RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
-    build-essential \
-    git \
-    bash-completion \
-    python3-colcon-common-extensions \
-    python3-colcon-mixin \
-    python3-rosdep \
-    python3-vcstool \
-    python3-pip \
-    && sudo rm -rf /var/lib/apt/lists/*
 
 # bootstrap rosdep
 RUN sudo rosdep init && \
