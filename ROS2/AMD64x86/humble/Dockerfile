@@ -32,7 +32,7 @@ RUN echo 'Asia/Kolkata' > /etc/timezone && \
 # install packages
 COPY aptPkgs.list /tmp/aptPkgs.list
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    $(cat /tmp/aptPkgs.list) \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non root user with sudo privilege
@@ -40,7 +40,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
-USER $USERNAME
 
 # Setup ROS Apt sources
 RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.1.0/ros2-apt-source_1.1.0.jammy_all.deb \
@@ -49,6 +48,14 @@ RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure
     && apt-get install /tmp/ros2-apt-source.deb \
     && rm -f /tmp/ros2-apt-source.deb \
     && rm -rf /var/lib/apt/lists/*
+
+# install packages
+COPY aptPkgs.list /tmp/aptPkgs.list
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    $(cat /tmp/aptPkgs.list) \
+    && rm -rf /var/lib/apt/lists/*
+
+USER $USERNAME
 
 # setup entrypoint
 COPY ./ros_entrypoint.sh /

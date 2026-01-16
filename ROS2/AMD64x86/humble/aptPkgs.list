@@ -3,7 +3,6 @@ bash-completion
 build-essential
 ca-certificates
 cmake
-curl
 dirmngr
 git
 gnupg
