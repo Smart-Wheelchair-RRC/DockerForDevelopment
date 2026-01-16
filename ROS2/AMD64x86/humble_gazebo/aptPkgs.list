@@ -1,12 +1,9 @@
 at
 bash-completion
 build-essential
-ca-certificates
 cmake
-dirmngr
 git
 gnupg
-gnupg2
 libaprutil1
 libgl1-mesa-dev
 libglfw3-dev
