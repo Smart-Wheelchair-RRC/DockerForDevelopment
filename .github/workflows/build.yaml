@@ -41,7 +41,8 @@ jobs:
       matrix:
         config:
           - { build_context: './ROS2/AMD64x86/humble', image_name: 'humble', image_version: "${{ needs.get-version.outputs.image_version }}" }
-          - { build_context: './ROS2/AMD64x86/humble_gpu', image_name: 'humble_gpu', image_version: "${{ needs.get-version.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/humble_gazebo', image_name: 'humble_gazebo', image_version: "${{ needs.get-version.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/humble_cuda', image_name: 'humble_cuda', image_version: "${{ needs.get-version.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
       build_context: ${{ matrix.config.build_context }}
@@ -67,27 +68,9 @@ jobs:
       image_version: ${{ matrix.config.image_version }}
       runs_on: ubuntu-22.04-arm
 
-  # Stage 2: ROS2 humble_harmonic (depends on base humble)
-  ros2-humble-harmonic:
-    needs: [get-version, ros2-humble-base-amd64]
-    name: ROS2 Humble Harmonic
-    permissions:
-      packages: write
-      contents: read
-    strategy:
-      matrix:
-        config:
-          - { build_context: './ROS2/AMD64x86/humble_harmonic', image_name: 'humble_harmonic', image_version: "${{ needs.get-version.outputs.image_version }}" }
-    uses: ./.github/workflows/build-workflow.yaml
-    with:
-      build_context: ${{ matrix.config.build_context }}
-      image_name: ${{ matrix.config.image_name }}
-      image_version: ${{ matrix.config.image_version }}
-      runs_on: ubuntu-latest
-
-  # Stage 3: ROS2 wheelchair2_base images (AMD64/x86)
+  # Stage 2: ROS2 wheelchair2_base images (AMD64/x86)
   ros2-wheelchair-base:
-    needs: [get-version, ros2-humble-base-amd64, ros2-humble-harmonic]
+    needs: [get-version, ros2-humble-base-amd64]
     name: ROS2 Wheelchair2 Base Images
     permissions:
       packages: write
@@ -96,6 +79,7 @@ jobs:
       matrix:
         config:
           - { build_context: './ROS2/AMD64x86/wheelchair2_base', image_name: 'wheelchair2_base', image_version: "${{ needs.get-version.outputs.image_version }}" }
+          - { build_context: './ROS2/AMD64x86/wheelchair2_base_cuda', image_name: 'wheelchair2_base_cuda', image_version: "${{ needs.get-version.outputs.image_version }}" }
           - { build_context: './ROS2/AMD64x86/wheelchair2_base_gazebo', image_name: 'wheelchair2_base_gazebo', image_version: "${{ needs.get-version.outputs.image_version }}" }
     uses: ./.github/workflows/build-workflow.yaml
     with:
