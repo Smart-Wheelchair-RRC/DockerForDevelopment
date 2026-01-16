@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_cuda:dev5.0.5
+FROM ghcr.io/smart-wheelchair-rrc/humble_cuda:dev5.0.6
 
 ARG USERNAME=container_user
 
@@ -20,7 +20,7 @@ RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/patch-realsense-ubuntu-lts-hwe.sh 
 RUN mkdir build && cd build \
     && cmake ../ \
-    && sudo make uninstall && make clean && make && sudo make install
+    && sudo make uninstall -j4 && make clean && make -j4 && sudo make install -j4
 
 # Build and install Livox-SDK2
 WORKDIR /home/$USERNAME
@@ -29,7 +29,7 @@ RUN cd Livox-SDK2 \
     && mkdir build \
     && cd build \
     && cmake .. && make -j \
-    && sudo make install
+    && sudo make install -j4
 
 COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \
