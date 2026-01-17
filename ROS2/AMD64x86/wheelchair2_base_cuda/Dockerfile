@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_cuda:dev5.0.8
+FROM ghcr.io/smart-wheelchair-rrc/humble_cuda:dev5.0.9
 
 ARG USERNAME=container_user
 
@@ -13,7 +13,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME
-RUN git clone --depth=1 --progress --verbose https://github.com/IntelRealSense/librealsense.git --branch v2.56.2
+RUN git clone --depth=1 --progress --verbose https://github.com/IntelRealSense/librealsense.git # --branch v2.56.2
 WORKDIR /home/$USERNAME/librealsense
 RUN sudo mkdir -p /etc/udev/rules.d && \
     ./scripts/setup_udev_rules.sh \
