@@ -17,10 +17,11 @@ This documentation is split into four parts:
 | Image name | Base image | Intended target | Features |
 | --- | --- | --- | --- |
 | `humble` | [`ubuntu:jammy`](https://hub.docker.com/_/ubuntu) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - non-root user |
-| `humble_gpu` | [`nvidia/cuda:12.2.2-devel-ubuntu22.04`](https://hub.docker.com/r/nvidia/cuda) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - CUDA <br> - CuDNN <br> - non-root user |
-| `humble_harmonic` | `humble_gpu` | x86\_64 laptop | - Gazebo Harmonic (recommended over fortress) |
+| `humble_cuda` | [`nvidia/cuda:12.2.2-devel-ubuntu22.04`](https://hub.docker.com/r/nvidia/cuda) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - CUDA <br> - CuDNN <br> - CUDA build tools <br> - non-root user |
+| `humble_gazebo` | [`nvidia/cuda:12.2.2-base-ubuntu22.04`](https://hub.docker.com/r/nvidia/cuda) | x86\_64 laptop | - ROS2 Humble Hawksbill packages <br> - CUDA <br> - CuDNN <br> - Gazebo Harmonic (recommended over fortress) <br> - non-root user |
 | `wheelchair2_base` | `humble` | x86\_64 laptop | - Realsense SDK <br> - Livox SDK |
-| `wheelchair_2_base_gazebo` | `humble_harmonic` | x86\_64 laptop | - ros2\_control <br> - RGLGazeboPlugin <br> - Nvidia Optix for gz-sim <br> - Realsense SDK <br> - Livox SDK |
+| `wheelchair2_cuda` | `humble_cuda` | x86\_64 laptop | - Realsense SDK <br> - Livox SDK |
+| `wheelchair_2_base_gazebo` | `humble_gazebo` | x86\_64 laptop | - ros2\_control <br> - RGLGazeboPlugin <br> - Nvidia Optix for gz-sim <br> - Realsense SDK <br> - Livox SDK |
 | `humble_jetson` | [`nvcr.io/nvidia/l4t-jetpack`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack) | Jetson (ARM64) | - ROS2 Humble Hawksbill packages <br> - non-root user |
 | `wheelchair2_base_jetson` | `humble_jetson` | Jetson (ARM64) | - Realsense SDK <br> - Livox SDK |
 

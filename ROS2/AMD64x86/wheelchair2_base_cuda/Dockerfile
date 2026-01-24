@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble:dev5.0.9
+FROM ghcr.io/smart-wheelchair-rrc/humble_cuda:dev5.0.9
 
 ARG USERNAME=container_user
 
@@ -9,8 +9,7 @@ LABEL org.opencontainers.image.vendor="Tarun R"
 LABEL org.opencontainers.image.source="https://github.com/Smart-Wheelchair-RRC/DockerForDevelopment"
 LABEL maintainer="tarun.ramak@gmail.com"
 LABEL org.opencontainers.image.licenses="MIT"
-# handle default shell
-SHELL ["/bin/bash", "-c"]
+
 
 # Build and install Realsense-SDK
 WORKDIR /home/$USERNAME

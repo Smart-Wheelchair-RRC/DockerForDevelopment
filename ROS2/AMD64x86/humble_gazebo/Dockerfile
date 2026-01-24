@@ -1,4 +1,6 @@
-FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
+FROM nvidia/cuda:12.2.2-base-ubuntu22.04
+
+
 
 # basic args
 ARG ROS_DISTRO=humble
@@ -20,6 +22,7 @@ ENV SHELL=/bin/bash
 
 # set ROS distro env
 ENV ROS_DISTRO=$ROS_DISTRO
+ENV GZ_VERSION=harmonic
 
 # setup locales
 ENV LANG=C.UTF-8
@@ -86,3 +89,43 @@ RUN echo 'source /usr/share/bash-completion/bash_completion' | sudo tee -a ~/.ba
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash" | sudo tee -a ~/.bashrc > /dev/null && \
     echo 'eval "$(register-python-argcomplete3 ros2)"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo 'eval "$(register-python-argcomplete3 colcon)"' | sudo tee -a ~/.bashrc > /dev/null
+
+
+
+# Install gazebo harmonic from osrf
+RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null \
+    && sudo apt-get update \
+    && sudo apt-get install -y gz-harmonic \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+RUN sudo apt-get update && sudo apt-get install -y ros-$ROS_DISTRO-ros-gzharmonic
+
+RUN sudo bash -c 'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/00-gazebo.list -O /etc/ros/rosdep/sources.list.d/00-gazebo.list' \
+    && rosdep update \
+    && rosdep resolve gz-harmonic 
+
+WORKDIR /home/$USERNAME/gz_ros2_control_ws/src
+RUN git clone --depth=1 --progress --verbose https://github.com/ros-controls/gz_ros2_control -b $ROS_DISTRO . \
+    && export GZ_VERSION=harmonic \
+    && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y --skip-keys="ros_gz_bridge ros_gz_sim" 
+
+WORKDIR /home/$USERNAME/gz_ros2_control_ws
+RUN source /opt/ros/$ROS_DISTRO/setup.bash \
+    && colcon build \
+    && echo "source ~/gz_ros2_control_ws/install/setup.bash" | sudo tee -a ~/.bashrc > /dev/null  
+
+RUN sudo mkdir -p /opt/nvidia/
+COPY NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/ /opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
+ENV OptiX_INSTALL_DIR=/opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
+
+WORKDIR /home/$USERNAME
+RUN git clone --depth=1 --progress --verbose https://github.com/RobotecAI/RGLGazeboPlugin.git \
+    && cd RGLGazeboPlugin \
+    && mkdir build && cd build \
+    && cmake .. && sudo make -j && sudo make install
+
+# Environment variable for RGLGazeboPlugin
+ENV GZ_GUI_PLUGIN_PATH=/home/$USERNAME/RGLGazeboPlugin/install/RGLVisualize
+ENV GZ_SIM_SYSTEM_PLUGIN_PATH=/home/$USERNAME/RGLGazeboPlugin/install/RGLServerPlugin
+ENV RGL_PATTERNS_DIR=/home/$USERNAME/RGLGazeboPlugin/lidar_patterns
