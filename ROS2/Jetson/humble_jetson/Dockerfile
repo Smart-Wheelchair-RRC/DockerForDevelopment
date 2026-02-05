@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
+FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0
 
 # basic args
 ARG ROS_DISTRO=humble
