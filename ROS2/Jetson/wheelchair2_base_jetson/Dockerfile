@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:v5.0
+FROM ghcr.io/smart-wheelchair-rrc/humble_jetson:dev5.1
 
 ARG USERNAME=container_user
 
@@ -41,6 +41,17 @@ COPY pythonPkgs.list /tmp/pythonPkgs.list
 RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
+
+
+#3D-BBS
+WORKDIR /home/container_user
+RUN git clone https://github.com/KOKIAOKI/3d_bbs.git --recursive --depth 1
+RUN cd 3d_bbs \
+    && mkdir build && cd build \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j \
+    && sudo make install \
+    && cd /home/container_user \
+    && rm -rf 3d_bbs 
 
 #Install Miniconda
 # RUN mkdir -p ~/miniconda3 && \
