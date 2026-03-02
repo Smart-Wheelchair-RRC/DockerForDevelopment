@@ -3,7 +3,7 @@ FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
 # basic args
 ARG ROS_DISTRO=humble
 ARG USERNAME=container_user
-ARG USER_UID=1000
+ARG USER_UID=1002
 ARG USER_GID=$USER_UID
 
 # Add metadata labels
@@ -47,18 +47,37 @@ RUN curl -L -s -o /tmp/ros2-apt-source.deb https://github.com/ros-infrastructure
     && rm -rf /var/lib/apt/lists/*
 
 # install packages
-COPY aptPkgs.list /tmp/aptPkgs.list
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    $(cat /tmp/aptPkgs.list) \
-    ros-$ROS_DISTRO-desktop \
-    && rm -rf /var/lib/apt/lists/*
+# COPY aptPkgs.list /tmp/aptPkgs.list
+# RUN apt-get update && apt-get install -q -y --no-install-recommends \
+#     $(cat /tmp/aptPkgs.list) \
+#     ros-$ROS_DISTRO-desktop \
+#     && rm -rf /var/lib/apt/lists/*
 
-# Create non root user with sudo privilege
+# # Create non root user with sudo privilege
+# RUN groupadd --gid $USER_GID $USERNAME \
+#     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+#     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+#     && chmod 0440 /etc/sudoers.d/$USERNAME
+# USER $USERNAME
+
+USER root
+RUN EXISTING_RENDER_GROUP=$(getent group 104 | cut -d: -f1) && \
+    if [ ! -z "$EXISTING_RENDER_GROUP" ] && [ "$EXISTING_RENDER_GROUP" != "render" ]; then \
+        groupmod -g 9904 "$EXISTING_RENDER_GROUP"; \
+    fi && \
+    groupmod -g 44 video || true && \
+    groupmod -g 104 render || true
+
+# 3. Create the user ONCE with the correct IDs
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && usermod -aG sudo,video,render,i2c $USERNAME \
+    && echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
-USER $USERNAME
+
+# 4. Set ownership (if files were copied as root previously)
+RUN chown -R $USER_UID:$USER_GID /home/$USERNAME
+
 
 # setup entrypoint
 COPY ./ros_entrypoint.sh /
