@@ -3,7 +3,7 @@ FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
 # basic args
 ARG ROS_DISTRO=humble
 ARG USERNAME=container_user
-ARG USER_UID=1000
+ARG USER_UID=1002
 ARG USER_GID=$USER_UID
 
 # Add metadata labels
@@ -53,17 +53,42 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     ros-$ROS_DISTRO-desktop \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non root user with sudo privilege
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-USER $USERNAME
+# Perform all root-level system modifications first
+USER root
+
+# 1. Resolve GID conflicts for Jetson hardware groups (video=44, render=104)
+RUN EXISTING_RENDER_GROUP=$(getent group 104 | cut -d: -f1) && \
+    if [ ! -z "$EXISTING_RENDER_GROUP" ] && [ "$EXISTING_RENDER_GROUP" != "render" ]; then \
+        groupmod -g 9904 "$EXISTING_RENDER_GROUP"; \
+    fi && \
+    groupmod -g 44 video || true && \
+    groupmod -g 104 render || true
+
+# 2. Robust User Creation: Check if name/UID/GID exists before creating
+RUN if getent passwd $USERNAME; then \
+        usermod -u $USER_UID $USERNAME && \
+        groupmod -g $USER_GID $USERNAME || true; \
+    else \
+        # Evict GID 1002 if it's taken by a system group (like 'nvidia')
+        EXISTING_VAL_GROUP=$(getent group $USER_GID | cut -d: -f1); \
+        if [ ! -z "$EXISTING_VAL_GROUP" ]; then groupmod -g 9992 "$EXISTING_VAL_GROUP"; fi; \
+        groupadd --gid $USER_GID $USERNAME && \
+        useradd --uid $USER_UID --gid $USER_GID -m $USERNAME; \
+    fi && \
+    # Grant sudo and hardware access
+    usermod -aG sudo,video,render,i2c $USERNAME && \
+    echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME
 
 # setup entrypoint
 COPY ./ros_entrypoint.sh /
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
+
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+
+USER $USERNAME
 
 # bootstrap rosdep
 RUN sudo rosdep init && \

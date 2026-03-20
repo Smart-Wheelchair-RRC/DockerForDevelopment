@@ -31,6 +31,7 @@ RUN cd Livox-SDK2 \
     && cmake .. && make -j \
     && sudo make install -j4
 
+
 COPY rosPkgs.list /tmp/rosPkgs.list
 RUN sudo apt-get update \
     && sudo apt-get -y install --no-install-recommends $(cat /tmp/rosPkgs.list) \
@@ -40,6 +41,16 @@ COPY pythonPkgs.list /tmp/pythonPkgs.list
 RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
+
+# 3D-BBS
+WORKDIR /home/container_user
+RUN git clone https://github.com/KOKIAOKI/3d_bbs.git --recursive --depth 1
+RUN cd 3d_bbs \
+    && mkdir build && cd build \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j \
+    && sudo make install \
+    && cd /home/container_user \
+    && rm -rf 3d_bbs 
 
 #Install Miniconda
 # RUN mkdir -p ~/miniconda3 && \
