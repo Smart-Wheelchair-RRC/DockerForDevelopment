@@ -1,2 +1,9 @@
 open3d
 casadi
+scipy
+
+# Web & Communication 
+tornado
+pymongo
+python-socketio
+requests

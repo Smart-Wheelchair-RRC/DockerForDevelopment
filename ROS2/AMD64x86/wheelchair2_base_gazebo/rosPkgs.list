@@ -1,17 +1,35 @@
+# Core Build and Development
+ros-humble-ament-cmake
+ros-humble-ament-cmake-mypy
+ros-humble-xacro
+ros-humble-rosbag2-storage-mcap
+
+# Control and Hardware Interface
 ros-humble-ros2-control
 ros-humble-ros2-controllers
-ros-humble-twist-mux
-ros-humble-xacro
-ros-humble-nav2-bringup
-ros-humble-navigation2
-ros-humble-spatio-temporal-voxel-layer
 ros-humble-hardware-interface
-ros-humble-pcl-ros
+ros-humble-joint-state-publisher
+ros-humble-joint-state-publisher-gui
+ros-humble-twist-mux
 ros-humble-twist-stamper
-ros-humble-ament-cmake
+
+# Navigation Stack (Nav2)
+ros-humble-navigation2
+ros-humble-nav2-bringup
+ros-humble-spatio-temporal-voxel-layer
+
+# Perception and Filtering (2D Lidar/Laser)
+ros-humble-filters
+ros-humble-laser-filters
+ros-humble-pcl-ros
 ros-humble-libpointmatcher
 ros-humble-camera-info-manager
 ros-humble-imu-tools
-ros-humble-joint-state-publisher
-ros-humble-joint-state-publisher-gui
-ros-humble-rosbag2-storage-mcap
+
+# Communication and API (Websockets/App)
+ros-humble-rosbridge-server
+ros-humble-rosapi
+ros-humble-tf2-ros
+ros-humble-tf2-geometry-msgs
+ros-humble-diagnostic-updater
+
