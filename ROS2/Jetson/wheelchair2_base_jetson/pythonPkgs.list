@@ -1,1 +1,9 @@
 open3d
+scipy
+tornado
+pymongo
+python-socketio
+requests
+adafruit-blinka
+adafruit-circuitpython-bno055
+jetson.GPIO

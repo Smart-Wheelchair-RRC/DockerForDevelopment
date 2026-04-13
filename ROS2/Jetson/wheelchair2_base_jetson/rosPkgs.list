@@ -5,6 +5,14 @@ ros-humble-xacro
 ros-humble-nav2-bringup
 ros-humble-navigation2
 ros-humble-spatio-temporal-voxel-layer
+ros-humble-filters
+ros-humble-laser-filters
 ros-humble-hardware-interface
 ros-humble-pcl-ros
 ros-humble-libpointmatcher
+ros-humble-imu-tools
+ros-humble-rosbridge-server
+ros-humble-rosapi
+ros-humble-diagnostic-updater
+ros-humble-robot-localization
+ros-humble-geographic-info
