@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-wheelchair-rrc/humble_gazebo:v5.1
+FROM ghcr.io/smart-wheelchair-rrc/humble_gazebo:v5.2
 
 ARG USERNAME=container_user
 
