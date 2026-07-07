@@ -41,7 +41,18 @@ RUN sudo apt-get update \
     && pip3 install $(cat /tmp/pythonPkgs.list) \
     && sudo rm -rf /var/lib/apt/lists/*
 
-#Install Miniconda
+# 3D-BBS
+WORKDIR /home/container_user
+RUN git clone https://github.com/KOKIAOKI/3d_bbs.git --recursive --depth 1
+RUN cd 3d_bbs \
+    && mkdir build && cd build \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j \
+    && sudo make install \
+    && cd /home/container_user \
+    && rm -rf 3d_bbs 
+
+
+    #Install Miniconda
 # RUN mkdir -p ~/miniconda3 && \
 #     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
 #     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
