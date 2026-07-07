@@ -48,7 +48,7 @@ RUN cd 3d_bbs \
     && mkdir build && cd build\
     && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j\
     && sudo make install \
-RUN cd /home/container_user \
+    && cd /home/container_user \
     && rm -rf 3d_bbs 
 
 
