@@ -45,8 +45,8 @@ RUN sudo apt-get update \
 WORKDIR /home/container_user
 RUN git clone https://github.com/KOKIAOKI/3d_bbs.git --recursive --depth 1
 RUN cd 3d_bbs \
-    && mkdir build && cd build \
-    && cmake .. -DCMAKE_BUILD_TYPE=Release && make \
+    && mkdir build && cd build
+RUN cmake .. -DCMAKE_BUILD_TYPE=Release && make -j\
     && sudo make install \
     && cd /home/container_user \
     && rm -rf 3d_bbs 
