@@ -9,6 +9,7 @@ libgl1-mesa-dev
 libglfw3-dev
 libglu1-mesa-dev
 libgtk-3-dev
+libserial-dev
 libssl-dev
 libudev-dev
 libusb-1.0-0-dev
