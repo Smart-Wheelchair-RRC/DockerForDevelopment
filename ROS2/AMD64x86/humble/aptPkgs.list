@@ -28,3 +28,4 @@ v4l-utils
 vim
 wget
 xterm
+libserial-dev

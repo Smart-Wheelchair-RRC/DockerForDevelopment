@@ -1,1 +1,7 @@
 open3d
+scipy
+tornado
+pymongo
+python-socketio
+requests
+jetson.GPIO

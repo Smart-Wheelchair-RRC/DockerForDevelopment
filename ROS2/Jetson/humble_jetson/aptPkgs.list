@@ -29,3 +29,4 @@ vim
 wget
 xterm
 libeigen3-dev
+libserial-dev
