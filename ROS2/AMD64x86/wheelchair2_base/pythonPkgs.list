@@ -4,4 +4,3 @@ tornado
 pymongo
 python-socketio
 requests
-jetson.GPIO
