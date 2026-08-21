@@ -1,3 +1,4 @@
+libserial-dev
 ros-humble-ros2-control
 ros-humble-ros2-controllers
 ros-humble-twist-mux
