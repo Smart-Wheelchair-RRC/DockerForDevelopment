@@ -60,10 +60,6 @@ RUN cd 3d_bbs \
 #     source ~/miniconda3/bin/activate && \
 #     conda init --all && \ 
 #     conda config --set auto_activate_base false
-# RUN curl -s --compressed "https://koide3.github.io/ppa/ubuntu2204/KEY.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/koide3_ppa.gpg >/dev/null  \
-#     && echo "deb [signed-by=/etc/apt/trusted.gpg.d/koide3_ppa.gpg] https://koide3.github.io/ppa/ubuntu2204 ./" | sudo tee /etc/apt/sources.list.d/koide3_ppa.list \
-#     && sudo apt update && sudo apt install -y libiridescence-dev libboost-all-dev libglfw3-dev libmetis-dev libgtsam-points-cuda12.2-dev
-
 # Build and install GTSAM
 WORKDIR /home/$USERNAME
 RUN git clone https://github.com/borglab/gtsam \
@@ -100,7 +96,8 @@ RUN git clone https://github.com/koide3/gtsam_points \
     && sudo make install \
     && cd ../.. \
     && sudo rm -rf gtsam_points
-    
+
+# glim using cmake method
 WORKDIR /home/$USERNAME
 RUN git clone --recursive https://github.com/koide3/glim.git /tmp/glim \
     && cd /tmp/glim \
