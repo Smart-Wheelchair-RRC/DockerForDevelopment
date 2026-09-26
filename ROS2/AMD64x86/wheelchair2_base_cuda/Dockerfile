@@ -60,9 +60,75 @@ RUN cd 3d_bbs \
 #     source ~/miniconda3/bin/activate && \
 #     conda init --all && \ 
 #     conda config --set auto_activate_base false
-RUN curl -s --compressed "https://koide3.github.io/ppa/ubuntu2204/KEY.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/koide3_ppa.gpg >/dev/null  \
-    && echo "deb [signed-by=/etc/apt/trusted.gpg.d/koide3_ppa.gpg] https://koide3.github.io/ppa/ubuntu2204 ./" | sudo tee /etc/apt/sources.list.d/koide3_ppa.list \
-    && sudo apt update && sudo apt install -y libiridescence-dev libboost-all-dev libglfw3-dev libmetis-dev libgtsam-points-cuda12.2-dev
+# RUN curl -s --compressed "https://koide3.github.io/ppa/ubuntu2204/KEY.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/koide3_ppa.gpg >/dev/null  \
+#     && echo "deb [signed-by=/etc/apt/trusted.gpg.d/koide3_ppa.gpg] https://koide3.github.io/ppa/ubuntu2204 ./" | sudo tee /etc/apt/sources.list.d/koide3_ppa.list \
+#     && sudo apt update && sudo apt install -y libiridescence-dev libboost-all-dev libglfw3-dev libmetis-dev libgtsam-points-cuda12.2-dev
+
+# Build and install GTSAM
+WORKDIR /home/$USERNAME
+RUN git clone https://github.com/borglab/gtsam \
+    && cd gtsam \
+    && git checkout 4.3a0 \
+    && mkdir build && cd build \
+    && cmake .. -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF \
+         -DGTSAM_BUILD_TESTS=OFF \
+         -DGTSAM_WITH_TBB=OFF \
+         -DGTSAM_USE_SYSTEM_EIGEN=ON \
+         -DGTSAM_BUILD_WITH_MARCH_NATIVE=OFF \
+    && make -j$(nproc) \
+    && sudo make install \
+    && cd ../.. \
+    && sudo rm -rf gtsam
+
+WORKDIR /home/$USERNAME
+RUN git clone https://github.com/koide3/iridescence --recursive \
+    && cd iridescence \
+    && mkdir build && cd build \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release \
+    && make -j$(nproc) \
+    && sudo make install \
+    && cd ../.. \
+    && sudo rm -rf iridescence
+    
+WORKDIR /home/$USERNAME
+RUN git clone https://github.com/koide3/gtsam_points \
+    && cd gtsam_points \
+    && git checkout v1.2.0 \
+    && mkdir build && cd build \
+    && cmake .. -DBUILD_WITH_CUDA=ON \
+    && make -j$(nproc) \
+    && sudo make install \
+    && cd ../.. \
+    && sudo rm -rf gtsam_points
+    
+WORKDIR /home/$USERNAME
+RUN git clone --recursive https://github.com/koide3/glim.git /tmp/glim \
+    && cd /tmp/glim \
+    && git checkout v1.1.0 \
+    && git submodule update --init --recursive \
+    && mkdir build && cd build \
+    && cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_WITH_CUDA=ON \
+    && make -j$(nproc) \
+    && sudo make install \
+    && rm -rf /tmp/glim
+
+# Build and install glim_ros v1.1.0 from source via CMake
+WORKDIR /home/$USERNAME
+RUN git clone --recursive https://github.com/koide3/glim_ros2.git /tmp/glim_ros2 \
+    && cd /tmp/glim_ros2 \
+    && git checkout v1.1.0 \
+    && git submodule update --init --recursive \
+    && mkdir build && cd build \
+    && source /opt/ros/${ROS_DISTRO}/setup.bash \
+    && cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+    && make -j$(nproc) \
+    && sudo make install \
+    && rm -rf /tmp/glim_ros2
+
+RUN sudo ldconfig
 # Set TERM and colorful prompt in bashrc
 RUN echo 'export TERM="xterm-256color"' | sudo tee -a ~/.bashrc > /dev/null && \
     echo "export PS1='\\[\\033[01;32m\\]\\u@\\h:\\[\\033[01;34m\\]\\w\\$\\[\\033[00m\\] '" | sudo tee -a ~/.bashrc > /dev/null
