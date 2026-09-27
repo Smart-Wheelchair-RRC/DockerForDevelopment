@@ -97,7 +97,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash \
 RUN sudo mkdir -p /opt/nvidia/
 COPY NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/ /opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
 ENV OptiX_INSTALL_DIR=/opt/nvidia/NVIDIA-OptiX-SDK-7.2.0-linux64-x86_64/
-
+## dummy change
 WORKDIR /home/$USERNAME
 RUN git clone --depth=1 --progress --verbose https://github.com/RobotecAI/RGLGazeboPlugin.git \
     && cd RGLGazeboPlugin \
